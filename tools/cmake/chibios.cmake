@@ -8,9 +8,9 @@ get_filename_component(CHIBIOS_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 get_filename_component(CHIBIOS_ROOT "${CHIBIOS_CMAKE_DIR}/../.." ABSOLUTE)
 
 # clear compiler and linker flags
-set(CMAKE_C_FLAGS)
-set(CMAKE_CXX_FLAGS)
-set(CMAKE_EXE_LINKER_FLAGS)
+# set(CMAKE_C_FLAGS)
+# set(CMAKE_CXX_FLAGS)
+# set(CMAKE_EXE_LINKER_FLAGS)
 
 # board specific definition
 if(NOT CHIBIOS_BOARD_CMAKE_FILE)
