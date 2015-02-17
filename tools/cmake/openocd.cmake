@@ -18,7 +18,7 @@ endif()
 # helper macro to create a target using OpenOCD
 macro(create_openocd_target custom_name target_to_flash)
     add_custom_target(
-        ${custom_name}
+        ${custom_name} ALL
         ${OPENOCD_EXE}
         -f ${OPENOCD_INTERFACE_CFG}
         -f ${OPENOCD_TARGET_CFG}
