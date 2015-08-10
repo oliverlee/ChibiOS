@@ -1,0 +1,10 @@
+get_filename_component(CHIBIOS_BOARD_DIR
+    ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
+set(CHIBIOS_BOARD_INCLUDE_DIR ${CHIBIOS_BOARD_DIR})
+set(CHIBIOS_BOARD_SRC ${CHIBIOS_BOARD_DIR}/board.c)
+
+# Include STM32F7xx platform files.
+include(${CHIBIOS_ROOT_DIR}/hal/ports/STM32/STM32F7xx/platform.cmake)
+
+# Set linker script
+set(CHIBIOS_LINKER_SCRIPT ${CHIBIOS_STARTUP_LINKER_DIR}/STM32F746xG.ld)
