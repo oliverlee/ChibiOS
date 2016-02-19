@@ -95,6 +95,13 @@ if(NOT CMAKE_BUILD_TYPE)
     message("CMAKE_BUILD_TYPE not set. Using ${CMAKE_BUILD_TYPE}.")
 endif()
 
+## OpenOCD post-build, flashing option
+option(OPENOCD_FLASH_TARGET "Flash target to board after build." OFF)
+option(OPENOCD_FLASH_AND_RUN_TARGET "Flash target to board and run after build." OFF)
+if(OPENOCD_FLASH_TARGET OR OPENOCD_FLASH_AND_RUN_TARGET)
+    include(${CMAKE_CURRENT_LIST_DIR}/openocd.cmake)
+endif()
+
 ## Include common HAL sources
 include(${CHIBIOS_ROOT_DIR}/hal/hal.cmake)
 include(${CHIBIOS_ROOT_DIR}/hal/osal/rt/osal.cmake)
@@ -210,4 +217,15 @@ macro(add_chibios_executable target_name)
     set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
         "${target_name}.map;${target_name}.hex;${target_name}.bin;${target_name}.dmp;${target_name}.list"
     )
+
+    # Flash (and run) target
+    if((NOT OPENOCD_INTERFACE_CFG) AND (NOT OPENOCD_TARGET_CFG))
+        message(WARNING "No OpenOCD configuration set. Skipping flash command.")
+    else()
+        if(OPENOCD_FLASH_AND_RUN_TARGET)
+            add_flash_and_run_target(${target_name})
+        elseif(OPENOCD_FLASH_TARGET)
+            add_flash_target(${target_name})
+        endif()
+    endif()
 endmacro(add_chibios_executable target_name)
