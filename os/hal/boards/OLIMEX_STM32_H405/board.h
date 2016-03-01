@@ -63,8 +63,8 @@
 #define GPIOA_PIN8                  8U
 #define GPIOA_PIN9                  9U
 #define GPIOA_PIN10                 10U
-#define GPIOA_PIN11                 11U
-#define GPIOA_PIN12                 12U
+#define GPIOA_USB_DM                11U
+#define GPIOA_USB_DP                12U
 #define GPIOA_JTAG_TMS              13U
 #define GPIOA_JTAG_TCK              14U
 #define GPIOA_JTAG_TDI              15U
@@ -90,7 +90,7 @@
 #define GPIOC_PIN1                  1U
 #define GPIOC_PIN2                  2U
 #define GPIOC_PIN3                  3U
-#define GPIOC_PIN4                  4U
+#define GPIOC_USB_P                 4U
 #define GPIOC_PIN5                  5U
 #define GPIOC_PIN6                  6U
 #define GPIOC_PIN7                  7U
@@ -209,6 +209,8 @@
  * IO lines assignments.
  */
 #define LINE_BUTTON                 PAL_LINE(GPIOA, 0U)
+#define LINE_USB_DM                 PAL_LINE(GPIOA, 11U)
+#define LINE_USB_DP                 PAL_LINE(GPIOA, 12U)
 #define LINE_JTAG_TMS               PAL_LINE(GPIOA, 13U)
 #define LINE_JTAG_TCK               PAL_LINE(GPIOA, 14U)
 #define LINE_JTAG_TDI               PAL_LINE(GPIOA, 15U)
@@ -217,6 +219,7 @@
 #define LINE_JTAG_TDO               PAL_LINE(GPIOB, 3U)
 #define LINE_JTAG_TRST              PAL_LINE(GPIOB, 4U)
 
+#define LINE_USB_P                  PAL_LINE(GPIOC, 4U)
 #define LINE_USB_DISC               PAL_LINE(GPIOC, 11U)
 #define LINE_LED                    PAL_LINE(GPIOC, 12U)
 #define LINE_OSC32_IN               PAL_LINE(GPIOC, 14U)
@@ -262,8 +265,8 @@
  * PA8  - PIN8                      (input pullup).
  * PA9  - PIN9                      (input pullup).
  * PA10 - PIN10                     (input pullup).
- * PA11 - PIN11                     (input pullup).
- * PA12 - PIN12                     (input pullup).
+ * PA11 - USB_DM                    (input pullup).
+ * PA12 - USB_DP                    (input pullup).
  * PA13 - JTAG_TMS                  (alternate 0).
  * PA14 - JTAG_TCK                  (alternate 0).
  * PA15 - JTAG_TDI                  (alternate 0).
@@ -279,8 +282,8 @@
                                      PIN_MODE_INPUT(GPIOA_PIN8) |           \
                                      PIN_MODE_INPUT(GPIOA_PIN9) |           \
                                      PIN_MODE_INPUT(GPIOA_PIN10) |          \
-                                     PIN_MODE_INPUT(GPIOA_PIN11) |          \
-                                     PIN_MODE_INPUT(GPIOA_PIN12) |          \
+                                     PIN_MODE_INPUT(GPIOA_USB_DM) |          \
+                                     PIN_MODE_INPUT(GPIOA_USB_DP) |          \
                                      PIN_MODE_ALTERNATE(GPIOA_JTAG_TMS) |   \
                                      PIN_MODE_ALTERNATE(GPIOA_JTAG_TCK) |   \
                                      PIN_MODE_ALTERNATE(GPIOA_JTAG_TDI))
@@ -295,8 +298,8 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN8) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN9) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN10) |      \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN11) |      \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN12) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_USB_DM) |      \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_USB_DP) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_JTAG_TMS) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOA_JTAG_TCK) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOA_JTAG_TDI))
@@ -311,8 +314,8 @@
                                      PIN_OSPEED_HIGH(GPIOA_PIN8) |          \
                                      PIN_OSPEED_HIGH(GPIOA_PIN9) |          \
                                      PIN_OSPEED_HIGH(GPIOA_PIN10) |         \
-                                     PIN_OSPEED_HIGH(GPIOA_PIN11) |         \
-                                     PIN_OSPEED_HIGH(GPIOA_PIN12) |         \
+                                     PIN_OSPEED_HIGH(GPIOA_USB_DM) |         \
+                                     PIN_OSPEED_HIGH(GPIOA_USB_DP) |         \
                                      PIN_OSPEED_HIGH(GPIOA_JTAG_TMS) |      \
                                      PIN_OSPEED_HIGH(GPIOA_JTAG_TCK) |      \
                                      PIN_OSPEED_HIGH(GPIOA_JTAG_TDI))
@@ -327,8 +330,8 @@
                                      PIN_PUPDR_PULLUP(GPIOA_PIN8) |         \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN9) |         \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN10) |        \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN11) |        \
-                                     PIN_PUPDR_PULLUP(GPIOA_PIN12) |        \
+                                     PIN_PUPDR_PULLUP(GPIOA_USB_DM) |        \
+                                     PIN_PUPDR_PULLUP(GPIOA_USB_DP) |        \
                                      PIN_PUPDR_FLOATING(GPIOA_JTAG_TMS) |   \
                                      PIN_PUPDR_PULLDOWN(GPIOA_JTAG_TCK) |   \
                                      PIN_PUPDR_FLOATING(GPIOA_JTAG_TDI))
@@ -343,8 +346,8 @@
                                      PIN_ODR_HIGH(GPIOA_PIN8) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN9) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN10) |            \
-                                     PIN_ODR_HIGH(GPIOA_PIN11) |            \
-                                     PIN_ODR_HIGH(GPIOA_PIN12) |            \
+                                     PIN_ODR_HIGH(GPIOA_USB_DM) |            \
+                                     PIN_ODR_HIGH(GPIOA_USB_DP) |            \
                                      PIN_ODR_HIGH(GPIOA_JTAG_TMS) |         \
                                      PIN_ODR_HIGH(GPIOA_JTAG_TCK) |         \
                                      PIN_ODR_HIGH(GPIOA_JTAG_TDI))
@@ -359,8 +362,8 @@
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0) |           \
                                      PIN_AFIO_AF(GPIOA_PIN9, 0) |           \
                                      PIN_AFIO_AF(GPIOA_PIN10, 0) |          \
-                                     PIN_AFIO_AF(GPIOA_PIN11, 0) |          \
-                                     PIN_AFIO_AF(GPIOA_PIN12, 0) |          \
+                                     PIN_AFIO_AF(GPIOA_USB_DM, 0) |          \
+                                     PIN_AFIO_AF(GPIOA_USB_DP, 0) |          \
                                      PIN_AFIO_AF(GPIOA_JTAG_TMS, 0) |       \
                                      PIN_AFIO_AF(GPIOA_JTAG_TCK, 0) |       \
                                      PIN_AFIO_AF(GPIOA_JTAG_TDI, 0))
@@ -488,7 +491,7 @@
  * PC0  - PIN0                      (input pullup).
  * PC1  - PIN1                      (input pullup).
  * PC2  - PIN2                      (input pullup).
- * PC3  - PIN3                      (input pullup).
+ * PC3  - USB_P                     (input pullup).
  * PC4  - PIN4                      (input pullup).
  * PC5  - PIN5                      (input pullup).
  * PC6  - PIN6                      (input pullup).
@@ -496,7 +499,7 @@
  * PC8  - PIN8                      (input pullup).
  * PC9  - PIN9                      (input pullup).
  * PC10 - PIN10                     (input pullup).
- * PC11 - USB_DISC                  (output opendrain maximum).
+ * PC11 - USB_DISC                  (output pushpull maximum).
  * PC12 - LED                       (output pushpull maximum).
  * PC13 - PIN13                     (input pullup).
  * PC14 - OSC32_IN                  (input floating).
@@ -506,7 +509,7 @@
                                      PIN_MODE_INPUT(GPIOC_PIN1) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN2) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN3) |           \
-                                     PIN_MODE_INPUT(GPIOC_PIN4) |           \
+                                     PIN_MODE_INPUT(GPIOC_USB_P) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN5) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN7) |           \
@@ -522,14 +525,14 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN1) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN2) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN3) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_PIN4) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_USB_P) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN5) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN6) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN7) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN8) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN9) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN10) |      \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_USB_DISC) |  \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_USB_DISC) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOC_LED) |        \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN13) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOC_OSC32_IN) |   \
@@ -538,7 +541,7 @@
                                      PIN_OSPEED_HIGH(GPIOC_PIN1) |          \
                                      PIN_OSPEED_HIGH(GPIOC_PIN2) |          \
                                      PIN_OSPEED_HIGH(GPIOC_PIN3) |          \
-                                     PIN_OSPEED_HIGH(GPIOC_PIN4) |          \
+                                     PIN_OSPEED_HIGH(GPIOC_USB_P) |          \
                                      PIN_OSPEED_HIGH(GPIOC_PIN5) |          \
                                      PIN_OSPEED_HIGH(GPIOC_PIN6) |          \
                                      PIN_OSPEED_HIGH(GPIOC_PIN7) |          \
@@ -554,7 +557,7 @@
                                      PIN_PUPDR_PULLUP(GPIOC_PIN1) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN2) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN3) |         \
-                                     PIN_PUPDR_PULLUP(GPIOC_PIN4) |         \
+                                     PIN_PUPDR_PULLUP(GPIOC_USB_P) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN5) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN6) |         \
                                      PIN_PUPDR_PULLUP(GPIOC_PIN7) |         \
@@ -570,7 +573,7 @@
                                      PIN_ODR_HIGH(GPIOC_PIN1) |             \
                                      PIN_ODR_HIGH(GPIOC_PIN2) |             \
                                      PIN_ODR_HIGH(GPIOC_PIN3) |             \
-                                     PIN_ODR_HIGH(GPIOC_PIN4) |             \
+                                     PIN_ODR_HIGH(GPIOC_USB_P) |             \
                                      PIN_ODR_HIGH(GPIOC_PIN5) |             \
                                      PIN_ODR_HIGH(GPIOC_PIN6) |             \
                                      PIN_ODR_HIGH(GPIOC_PIN7) |             \
@@ -586,7 +589,7 @@
                                      PIN_AFIO_AF(GPIOC_PIN1, 0) |           \
                                      PIN_AFIO_AF(GPIOC_PIN2, 0) |           \
                                      PIN_AFIO_AF(GPIOC_PIN3, 0) |           \
-                                     PIN_AFIO_AF(GPIOC_PIN4, 0) |           \
+                                     PIN_AFIO_AF(GPIOC_USB_P, 0) |           \
                                      PIN_AFIO_AF(GPIOC_PIN5, 0) |           \
                                      PIN_AFIO_AF(GPIOC_PIN6, 0) |           \
                                      PIN_AFIO_AF(GPIOC_PIN7, 0))
@@ -1300,6 +1303,16 @@
                                      PIN_AFIO_AF(GPIOI_PIN13, 0) |          \
                                      PIN_AFIO_AF(GPIOI_PIN14, 0) |          \
                                      PIN_AFIO_AF(GPIOI_PIN15, 0))
+
+/*
+ * Board specific USB bus activation macro. Replaces use of usbConnectBus() in the USB driver.
+ */
+#define board_usb_lld_connect_bus() palClearPad(GPIOC, GPIOC_USB_DISC)
+
+/*
+ * Board specific USB bus de-activation macro. Replaces use of usbDisconnectBus() in the USB driver.
+ */
+#define board_usb_lld_disconnect_bus() palSetPad(GPIOC, GPIOC_USB_DISC)
 
 
 #if !defined(_FROM_ASM_)
