@@ -50,7 +50,7 @@ endif(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
 
 ## Build global options
 # Compiler options here.
-set(OPT_FLAGS "-O2 -ggdb -fomit-frame-pointer -falign-functions=16")
+set(OPT_FLAGS "-fomit-frame-pointer -falign-functions=16")
 # C specific options
 set(C_FLAGS "")
 # C++ specific options
@@ -60,7 +60,7 @@ set(ASM_FLAGS "")
 # Linker options
 set(LD_FLAGS "")
 
-## CMake build options
+## ChibiOS build options
 option(CHIBIOS_USE_LINK_GC "Remove unused code and data when linking." TRUE)
 option(CHIBIOS_USE_THUMB "Compile application in THUMB mode." TRUE)
 option(CHIBIOS_USE_LTO "Perform Link Time Optimization." TRUE)
@@ -76,6 +76,31 @@ set(CHIBIOS_USE_EXCEPTION_STACKSIZE "0x400"
 set(C_WARN_FLAGS "-Wall -Wextra -Wundef -Wstrict-prototypes")
 # Define C++ warning options
 set(CXX_WARN_FLAGS "-Wall -Wextra -Wundef")
+
+## Debug/Release flags. User should not should not override.
+# Release uses MINRELSIZE
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0" CACHE
+    STRING "Flags used by the compiler during debug builds." FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0" CACHE
+    STRING "Flags used by the compiler during debug builds." FORCE)
+set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
+    STRING "Flags used by the compiler during release builds." FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
+    STRING "Flags used by the compiler during release builds." FORCE)
+
+# set default build type to Debug
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE
+        STRING "Choose the type of build, options are: Debug, Release." FORCE)
+    message("CMAKE_BUILD_TYPE not set. Using ${CMAKE_BUILD_TYPE}.")
+endif()
+
+## OpenOCD post-build, flashing option
+option(OPENOCD_FLASH_TARGET "Flash target to board after build." OFF)
+option(OPENOCD_FLASH_AND_RUN_TARGET "Flash target to board and run after build." OFF)
+if(OPENOCD_FLASH_TARGET OR OPENOCD_FLASH_AND_RUN_TARGET)
+    include(${CMAKE_CURRENT_LIST_DIR}/openocd.cmake)
+endif()
 
 ## Include common HAL sources
 include(${CHIBIOS_ROOT_DIR}/hal/hal.cmake)
@@ -192,4 +217,15 @@ macro(add_chibios_executable target_name)
     set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
         "${target_name}.map;${target_name}.hex;${target_name}.bin;${target_name}.dmp;${target_name}.list"
     )
+
+    # Flash (and run) target
+    if((NOT OPENOCD_INTERFACE_CFG) AND (NOT OPENOCD_TARGET_CFG))
+        message(WARNING "No OpenOCD configuration set. Skipping flash command.")
+    else()
+        if(OPENOCD_FLASH_AND_RUN_TARGET)
+            add_flash_and_run_target(${target_name})
+        elseif(OPENOCD_FLASH_TARGET)
+            add_flash_target(${target_name})
+        endif()
+    endif()
 endmacro(add_chibios_executable target_name)
