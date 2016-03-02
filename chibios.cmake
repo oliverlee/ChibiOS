@@ -172,7 +172,8 @@ set(CMAKE_ASM_FLAGS "-x assembler-with-cpp ${MC_FLAGS} ${ASM_FLAGS}")
 set(CMAKE_C_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS
-    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
+    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles \
+    -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
 ## Define macro for executable
 macro(add_chibios_executable target_name)
@@ -229,3 +230,21 @@ macro(add_chibios_executable target_name)
         endif()
     endif()
 endmacro(add_chibios_executable target_name)
+
+## Define macro for ChibiOS debug options
+macro(chibios_debug_option variable description)
+    option(CHIBIOS_DBG_${variable} ${description} FALSE)
+    if(CHIBIOS_DBG_${variable})
+        add_definitions("-DCH_DBG_${variable}=1")
+    else()
+        add_definitions("-DCH_DBG_${variable}=0")
+    endif()
+endmacro()
+chibios_debug_option(STATISTICS "Enable kernel statistics.")
+chibios_debug_option(SYSTEM_STATE_CHECK "Enable kernel system state check.")
+chibios_debug_option(ENABLE_CHECKS "Enable API parameter check.")
+chibios_debug_option(ENABLE_ASSERTS "Enable kernel assertions.")
+chibios_debug_option(ENABLE_TRACE "Enable context switch trace buffer.")
+chibios_debug_option(ENABLE_STACK_CHECK "Enable runtime thread stack check. Not enabled for all ports.")
+chibios_debug_option(FILL_THREADS "Enable thtread stack initialization.")
+chibios_debug_option(THREADS_PROFILING "Enable thread profiling. Not compatible with tickless mode.")
