@@ -248,3 +248,36 @@ chibios_debug_option(ENABLE_TRACE "Enable context switch trace buffer.")
 chibios_debug_option(ENABLE_STACK_CHECK "Enable runtime thread stack check. Not enabled for all ports.")
 chibios_debug_option(FILL_THREADS "Enable thtread stack initialization.")
 chibios_debug_option(THREADS_PROFILING "Enable thread profiling. Not compatible with tickless mode.")
+
+## Define subset of ChibiOS config options
+#  - system timer settings
+#  - kernel parameters and options
+#  - performance options
+set(CHIBIOS_CFG_ST_RESOLUTION "32" CACHE STRING
+    "System time counter resolution. Allowed values are 16 or 32 bits.")
+set(CHIBIOS_CFG_ST_FREQUENCY "10000" CACHE STRING
+    "System tick frequency. Frequency of the system timer that drives the system ticks.")
+set(CHIBIOS_CFG_ST_TIMEDELTA "2" CACHE STRING
+    "Time delta constant for tickless mode. 0 disables tickless mode and uses standard periodic tick.")
+set(CHIBIOS_CFG_TIME_QUANTUM "0" CACHE STRING
+    "Round robin interval in system ticks. 0 disables preemption for thread with equal priority. \
+    Not supported in tickless mode and must be zet to 0.")
+set(CHIBIOS_CFG_MEMCORE_SIZE "0" CACHE STRING
+    "Managed RAM size. 0 uses all available RAM. Requires CH_CFG_USE_MEMCORE.")
+add_definitions("-DCH_CFG_ST_RESOLUTION=${CHIBIOS_CFG_ST_RESOLUTION}")
+add_definitions("-DCH_CFG_ST_FREQUENCY=${CHIBIOS_CFG_ST_FREQUENCY}")
+add_definitions("-DCH_CFG_ST_TIMEDELTA=${CHIBIOS_CFG_ST_TIMEDELTA}")
+add_definitions("-DCH_CFG_TIME_QUANTUM=${CHIBIOS_CFG_TIME_QUANTUM}")
+
+macro(chibios_config_option variable description default)
+    option(CHIBIOS_CFG_${variable} ${description} ${default})
+    if(CHIBIOS_CFG_${variable})
+        add_definitions("-DCH_CFG_${variable}=1")
+    else()
+        add_definitions("-DCH_CFG_${variable}=0")
+    endif()
+endmacro()
+chibios_config_option(NO_IDLE_THREAD
+    "Disable spawn of the idle thread. The application main() function must implement an infinite loop." FALSE)
+chibios_config_option(OPTIMIZE_SPEED
+    "Enable time efficient rather than space efficient code." TRUE)
