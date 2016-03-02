@@ -42,9 +42,9 @@ if(NOT CHIBIOS_BOARD_CMAKE_FILE)
 endif(NOT CHIBIOS_BOARD_CMAKE_FILE)
 get_filename_component(CHIBIOS_BOARD_CMAKE_FILE ${CHIBIOS_BOARD_CMAKE_FILE} ABSOLUTE)
 if(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
-    message("Using settings from ${CHIBIOS_BOARD_CMAKE_FILE}")
+    message("Using CMAKE BOARD FILE: ${CHIBIOS_BOARD_CMAKE_FILE}")
 else(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
-    message(FATAL_ERROR
+    message(SEND_ERROR
         "The CHIBIOS_BOARD_CMAKE_FILE variable must be set to a valid file.")
 endif(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
 
