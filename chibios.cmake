@@ -42,9 +42,9 @@ if(NOT CHIBIOS_BOARD_CMAKE_FILE)
 endif(NOT CHIBIOS_BOARD_CMAKE_FILE)
 get_filename_component(CHIBIOS_BOARD_CMAKE_FILE ${CHIBIOS_BOARD_CMAKE_FILE} ABSOLUTE)
 if(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
-    message("Using settings from ${CHIBIOS_BOARD_CMAKE_FILE}")
+    message("Using CMAKE BOARD FILE: ${CHIBIOS_BOARD_CMAKE_FILE}")
 else(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
-    message(FATAL_ERROR
+    message(SEND_ERROR
         "The CHIBIOS_BOARD_CMAKE_FILE variable must be set to a valid file.")
 endif(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
 
@@ -172,7 +172,8 @@ set(CMAKE_ASM_FLAGS "-x assembler-with-cpp ${MC_FLAGS} ${ASM_FLAGS}")
 set(CMAKE_C_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS
-    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
+    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles \
+    -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
 ## Define macro for executable
 macro(add_chibios_executable target_name)
@@ -229,3 +230,54 @@ macro(add_chibios_executable target_name)
         endif()
     endif()
 endmacro(add_chibios_executable target_name)
+
+## Define macro for ChibiOS debug options
+macro(chibios_debug_option variable description)
+    option(CHIBIOS_DBG_${variable} ${description} FALSE)
+    if(CHIBIOS_DBG_${variable})
+        add_definitions("-DCH_DBG_${variable}=1")
+    else()
+        add_definitions("-DCH_DBG_${variable}=0")
+    endif()
+endmacro()
+chibios_debug_option(STATISTICS "Enable kernel statistics.")
+chibios_debug_option(SYSTEM_STATE_CHECK "Enable kernel system state check.")
+chibios_debug_option(ENABLE_CHECKS "Enable API parameter check.")
+chibios_debug_option(ENABLE_ASSERTS "Enable kernel assertions.")
+chibios_debug_option(ENABLE_TRACE "Enable context switch trace buffer.")
+chibios_debug_option(ENABLE_STACK_CHECK "Enable runtime thread stack check. Not enabled for all ports.")
+chibios_debug_option(FILL_THREADS "Enable thtread stack initialization.")
+chibios_debug_option(THREADS_PROFILING "Enable thread profiling. Not compatible with tickless mode.")
+
+## Define subset of ChibiOS config options
+#  - system timer settings
+#  - kernel parameters and options
+#  - performance options
+set(CHIBIOS_CFG_ST_RESOLUTION "32" CACHE STRING
+    "System time counter resolution. Allowed values are 16 or 32 bits.")
+set(CHIBIOS_CFG_ST_FREQUENCY "10000" CACHE STRING
+    "System tick frequency. Frequency of the system timer that drives the system ticks.")
+set(CHIBIOS_CFG_ST_TIMEDELTA "2" CACHE STRING
+    "Time delta constant for tickless mode. 0 disables tickless mode and uses standard periodic tick.")
+set(CHIBIOS_CFG_TIME_QUANTUM "0" CACHE STRING
+    "Round robin interval in system ticks. 0 disables preemption for thread with equal priority. \
+    Not supported in tickless mode and must be zet to 0.")
+set(CHIBIOS_CFG_MEMCORE_SIZE "0" CACHE STRING
+    "Managed RAM size. 0 uses all available RAM. Requires CH_CFG_USE_MEMCORE.")
+add_definitions("-DCH_CFG_ST_RESOLUTION=${CHIBIOS_CFG_ST_RESOLUTION}")
+add_definitions("-DCH_CFG_ST_FREQUENCY=${CHIBIOS_CFG_ST_FREQUENCY}")
+add_definitions("-DCH_CFG_ST_TIMEDELTA=${CHIBIOS_CFG_ST_TIMEDELTA}")
+add_definitions("-DCH_CFG_TIME_QUANTUM=${CHIBIOS_CFG_TIME_QUANTUM}")
+
+macro(chibios_config_option variable description default)
+    option(CHIBIOS_CFG_${variable} ${description} ${default})
+    if(CHIBIOS_CFG_${variable})
+        add_definitions("-DCH_CFG_${variable}=1")
+    else()
+        add_definitions("-DCH_CFG_${variable}=0")
+    endif()
+endmacro()
+chibios_config_option(NO_IDLE_THREAD
+    "Disable spawn of the idle thread. The application main() function must implement an infinite loop." FALSE)
+chibios_config_option(OPTIMIZE_SPEED
+    "Enable time efficient rather than space efficient code." TRUE)
