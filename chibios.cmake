@@ -49,6 +49,7 @@ else(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
 endif(EXISTS "${CHIBIOS_BOARD_CMAKE_FILE}")
 
 ## Build global options
+message("Clearing previous settings in compile and link flags...")
 # Compiler options here.
 set(OPT_FLAGS "-fomit-frame-pointer -falign-functions=16")
 # C specific options
@@ -174,16 +175,29 @@ set(MC_FLAGS "-mcpu=${MCU}")
 set(CMAKE_ASM_FLAGS "-x assembler-with-cpp ${MC_FLAGS} ${ASM_FLAGS}")
 set(CMAKE_C_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS
-    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles \
+set(CMAKE_EXE_LINKER_FLAGS "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles --specs=nosys.specs ${LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
 -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
 ## Define macro for executable
 macro(add_chibios_executable target_name)
+
+    set(CHIBIOS_CPP_WRAPPERS_SRC)
+    foreach(src in ${ARGN})
+        get_filename_component(src_ext ${src} EXT)
+        if( (src_ext STREQUAL ".cc") OR
+            (src_ext STREQUAL ".cpp") OR
+            (src_ext STREQUAL ".cxx") )
+            set(CHIBIOS_CPP_WRAPPERS_SRC ${CHIBIOS_ROOT_DIR}/various/cpp_wrappers/syscalls_cpp.cpp)
+            break()
+        endif()
+    endforeach()
+
+
     add_executable(${target_name}
         ${CHIBIOS_HAL_SRC} ${CHIBIOS_OSAL_SRC} ${CHIBIOS_RT_SRC} ${CHIBIOS_TEST_SRC}
         ${CHIBIOS_BOARD_SRC} ${CHIBIOS_PLATFORM_SRC} ${CHIBIOS_PORT_SRC} ${CHIBIOS_STARTUP_SRC}
-        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC}
+        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC} ${CHIBIOS_CPP_WRAPPERS_SRC}
         ${ARGN}
     )
     set_target_properties(${target_name} PROPERTIES SUFFIX ".elf")
