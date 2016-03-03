@@ -105,6 +105,8 @@ endif()
 ## Include common HAL sources
 include(${CHIBIOS_ROOT_DIR}/hal/hal.cmake)
 include(${CHIBIOS_ROOT_DIR}/hal/osal/rt/osal.cmake)
+# Include streams sources
+include(${CHIBIOS_ROOT_DIR}/hal/lib/streams/streams.cmake)
 
 ## Include common RT sources
 include(${CHIBIOS_ROOT_DIR}/rt/rt.cmake)
@@ -119,6 +121,7 @@ set(CHIBIOS_INCLUDE_DIR
     ${CHIBIOS_OSAL_INCLUDE_DIR}
     ${CHIBIOS_RT_INCLUDE_DIR}
     ${CHIBIOS_TEST_INCLUDE_DIR}
+    ${CHIBIOS_STREAMS_INCLUDE_DIR}
     ${CHIBIOS_ROOT_DIR}/various
     # board specific include directories
     ${CHIBIOS_BOARD_INCLUDE_DIR}
@@ -173,14 +176,14 @@ set(CMAKE_C_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS
     "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles \
-    -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
+-Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
 ## Define macro for executable
 macro(add_chibios_executable target_name)
     add_executable(${target_name}
         ${CHIBIOS_HAL_SRC} ${CHIBIOS_OSAL_SRC} ${CHIBIOS_RT_SRC} ${CHIBIOS_TEST_SRC}
         ${CHIBIOS_BOARD_SRC} ${CHIBIOS_PLATFORM_SRC} ${CHIBIOS_PORT_SRC} ${CHIBIOS_STARTUP_SRC}
-        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM}
+        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC}
         ${ARGN}
     )
     set_target_properties(${target_name} PROPERTIES SUFFIX ".elf")
@@ -261,7 +264,7 @@ set(CHIBIOS_CFG_ST_TIMEDELTA "2" CACHE STRING
     "Time delta constant for tickless mode. 0 disables tickless mode and uses standard periodic tick.")
 set(CHIBIOS_CFG_TIME_QUANTUM "0" CACHE STRING
     "Round robin interval in system ticks. 0 disables preemption for thread with equal priority. \
-    Not supported in tickless mode and must be zet to 0.")
+Not supported in tickless mode and must be zet to 0.")
 set(CHIBIOS_CFG_MEMCORE_SIZE "0" CACHE STRING
     "Managed RAM size. 0 uses all available RAM. Requires CH_CFG_USE_MEMCORE.")
 add_definitions("-DCH_CFG_ST_RESOLUTION=${CHIBIOS_CFG_ST_RESOLUTION}")
