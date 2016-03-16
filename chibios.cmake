@@ -149,7 +149,7 @@ endif(CHIBIOS_USE_THUMB)
 
 if(CHIBIOS_USE_LINK_GC)
     set(OPT_FLAGS
-        "${OPT_FLAGS} -ffunction-sections -fdata-sections -fno-common")
+        "${OPT_FLAGS} -ffunction-sections -fdata-sections -fno-common -fno-builtin")
     set(LD_FLAGS "${LD_FLAGS} -Wl,--gc-sections")
 endif(CHIBIOS_USE_LINK_GC)
 
@@ -175,7 +175,8 @@ set(MC_FLAGS "-mcpu=${MCU}")
 set(CMAKE_ASM_FLAGS "-x assembler-with-cpp ${MC_FLAGS} ${ASM_FLAGS}")
 set(CMAKE_C_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${C_FLAGS} ${C_WARN_FLAGS}")
 set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles --specs=nosys.specs ${LD_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS
+    "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles --specs=nano.specs --specs=nosys.specs ${LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
 -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
