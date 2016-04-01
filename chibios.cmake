@@ -80,9 +80,9 @@ set(CXX_WARN_FLAGS "-Wall -Wextra -Wundef")
 
 ## Debug/Release flags. User should not should not override.
 # Release uses MINRELSIZE
-set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0" CACHE
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -Og" CACHE
     STRING "Flags used by the compiler during debug builds." FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0" CACHE
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -Og" CACHE
     STRING "Flags used by the compiler during debug builds." FORCE)
 set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
