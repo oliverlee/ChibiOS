@@ -88,11 +88,17 @@ set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-ggdb3 -Os -DNDEBUG" CACHE
+    STRING "Flags used by the compiler during release builds." FORCE)
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-ggdb3 -Os -DNDEBUG" CACHE
+    STRING "Flags used by the compiler during release builds." FORCE)
 
 # set default build type to Debug
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE
-        STRING "Choose the type of build, options are: Debug, Release." FORCE)
+        STRING
+        "Choose the type of build, options are: Debug, Release, RelWithDebInfo."
+        FORCE)
     message("CMAKE_BUILD_TYPE not set. Using ${CMAKE_BUILD_TYPE}.")
 endif()
 
