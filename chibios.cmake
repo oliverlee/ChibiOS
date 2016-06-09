@@ -80,17 +80,17 @@ set(CXX_WARN_FLAGS "-Wall -Wextra -Wundef")
 
 ## Debug/Release flags. User should not should not override.
 # Release uses MINRELSIZE
-set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -Og" CACHE
+set(CMAKE_C_FLAGS_DEBUG "-gdwarf-4 -fvar-tracking-assignments -O0" CACHE
     STRING "Flags used by the compiler during debug builds." FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -Og" CACHE
+set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-4 -fvar-tracking-assignments -O0" CACHE
     STRING "Flags used by the compiler during debug builds." FORCE)
 set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-ggdb3 -Os -DNDEBUG" CACHE
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-gdwarf-4 -fvar-tracking-assignments -Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-ggdb3 -Os -DNDEBUG" CACHE
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-gdwarf-4 -fvar-tracking-assignments -Os -DNDEBUG" CACHE
     STRING "Flags used by the compiler during release builds." FORCE)
 
 # set default build type to Debug
