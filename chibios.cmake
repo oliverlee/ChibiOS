@@ -186,6 +186,14 @@ set(CMAKE_EXE_LINKER_FLAGS
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
 -Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
 
+# ChibiOS build output options
+option(CHIBIOS_CREATE_BIN "Create executable binary file." FALSE)
+option(CHIBIOS_CREATE_DUMP "Create executable dump file." FALSE)
+option(CHIBIOS_CREATE_HEX "Create executable Intel HEX file." FALSE)
+option(CHIBIOS_CREATE_LIST "Create executable list file." FALSE)
+option(CHIBIOS_CREATE_MAP "Create executable map file." FALSE)
+mark_as_advanced(CHIBIOS_CREATE_BIN CHIBIOS_CREATE_DUMP CHIBIOS_CREATE_HEX CHIBIOS_CREATE_LIST CHIBIOS_CREATE_MAP)
+
 ## Define macro for executable
 macro(add_chibios_executable target_name)
 
@@ -210,34 +218,44 @@ macro(add_chibios_executable target_name)
     set_target_properties(${target_name} PROPERTIES SUFFIX ".elf")
     set(target_path ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.elf)
 
-    # Output map file
-    set_property(TARGET ${target_name} APPEND_STRING PROPERTY
-        LINK_FLAGS " -Wl,-Map=${target_name}.map,--cref"
-    )
+    # Create map file
+    if(CHIBIOS_CREATE_MAP)
+        set_property(TARGET ${target_name} APPEND_STRING PROPERTY
+            LINK_FLAGS " -Wl,-Map=${target_name}.map,--cref"
+        )
+    endif()
 
     # Create Intel HEX file
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -O ihex ${target_path} ${target_name}.hex
-        COMMENT "Creating ${target_name}.hex"
-    )
+    if(CHIBIOS_CREATE_HEX)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_OBJCOPY} -O ihex ${target_path} ${target_name}.hex
+            COMMENT "Creating ${target_name}.hex"
+        )
+    endif()
 
     # Create binary file
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -O binary ${target_path} ${target_name}.bin
-        COMMENT "Creating ${target_name}.bin"
-    )
+    if(CHIBIOS_CREATE_BIN)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_OBJCOPY} -O binary ${target_path} ${target_name}.bin
+            COMMENT "Creating ${target_name}.bin"
+        )
+    endif()
 
     # Create dump file
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_OBJDUMP} -x --syms ${target_path} > ${target_name}.dmp
-        COMMENT "Creating ${target_name}.dmp"
-    )
+    if(CHIBIOS_CREATE_DUMP)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_OBJDUMP} -x --syms ${target_path} > ${target_name}.dmp
+            COMMENT "Creating ${target_name}.dmp"
+        )
+    endif()
 
     # Create list file
-    add_custom_command(TARGET ${target_name} POST_BUILD
-        COMMAND ${CMAKE_OBJDUMP} -S ${target_path} > ${target_name}.list
-        COMMENT "Creating ${target_name}.list"
-    )
+    if(CHIBIOS_CREATE_LIST)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_OBJDUMP} -S ${target_path} > ${target_name}.list
+            COMMENT "Creating ${target_name}.list"
+        )
+    endif()
 
     set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
         "${target_name}.map;${target_name}.hex;${target_name}.bin;${target_name}.dmp;${target_name}.list"
