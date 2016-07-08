@@ -51,6 +51,7 @@ RTCDriver RTCD1;
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
+
 /**
  * @brief   Wait for synchronization of RTC registers with APB1 bus.
  * @details This function must be invoked before trying to read RTC registers.
@@ -101,7 +102,7 @@ void rtc_lld_init(void){
   RTCD1.id_rtc->WPR = 0x53;
 
   /* If calendar not init yet. */
-  if (!(RTC->ISR & RTC_ISR_INITS)){
+  if (!(RTCD1.id_rtc->ISR & RTC_ISR_INITS)){
     rtc_lld_enter_init();
 
     /* Prescaler register must be written in two SEPARATE writes. */
@@ -150,12 +151,15 @@ void rtc_lld_get_time(RTCDriver *rtcp, RTCTime *timespec) {
   rtc_lld_apb1_sync();
 
 #if STM32_RTC_HAS_SUBSECONDS
-  timespec->tv_msec =
-      (1000 * ((RTCD1.id_rtc->PRER & 0x7FFF) - RTCD1.id_rtc->SSR)) /
-      ((RTCD1.id_rtc->PRER & 0x7FFF) + 1);
+  {
+    uint32_t prer = RTCD1.id_rtc->PRER & 0x7FFF;
+    uint32_t ssr  = RTCD1.id_rtc->SSR;
+    timespec->tv_msec = (1000 * (prer - ssr)) / (prer + 1);
+  }
 #endif /* STM32_RTC_HAS_SUBSECONDS */
   timespec->tv_time = RTCD1.id_rtc->TR;
   timespec->tv_date = RTCD1.id_rtc->DR;
+  timespec->h12 = ((RTCD1.id_rtc->CR & RTC_CR_FMT) != 0);
 }
 
 /**
@@ -238,11 +242,12 @@ void rtc_lld_get_alarm(RTCDriver *rtcp,
  * @api
  */
 #if RTC_HAS_PERIODIC_WAKEUPS
-void rtcSetPeriodicWakeup_v2(RTCDriver *rtcp, const RTCWakeup *wakeupspec){
-  chDbgCheck((wakeupspec->wakeup != 0x30000),
-              "rtc_lld_set_periodic_wakeup, forbidden combination");
+void rtcSetPeriodicWakeup_v2(RTCDriver *rtcp, const RTCWakeup *wakeupspec) {
 
   if (wakeupspec != NULL){
+    chDbgCheck((wakeupspec->wakeup != 0x30000),
+               "rtc_lld_set_periodic_wakeup, forbidden combination");
+
     rtcp->id_rtc->CR &= ~RTC_CR_WUTE;
     while(!(rtcp->id_rtc->ISR & RTC_ISR_WUTWF))
       ;
@@ -269,7 +274,8 @@ void rtcSetPeriodicWakeup_v2(RTCDriver *rtcp, const RTCWakeup *wakeupspec){
  * @api
  */
 #if RTC_HAS_PERIODIC_WAKEUPS
-void rtcGetPeriodicWakeup_v2(RTCDriver *rtcp, RTCWakeup *wakeupspec){
+void rtcGetPeriodicWakeup_v2(RTCDriver *rtcp, RTCWakeup *wakeupspec) {
+
   wakeupspec->wakeup  = 0;
   wakeupspec->wakeup |= rtcp->id_rtc->WUTR;
   wakeupspec->wakeup |= (((uint32_t)rtcp->id_rtc->CR) & 0x7) << 16;

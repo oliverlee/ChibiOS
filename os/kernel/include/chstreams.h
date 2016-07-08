@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -116,7 +123,7 @@ typedef struct {
  * @details This function writes a byte value to a channel. If the channel
  *          is not ready to accept data then the calling thread is suspended.
  *
- * @param[in] ip        pointer to a @p BaseChannel or derived class
+ * @param[in] ip        pointer to a @p BaseSequentialStream or derived class
  * @param[in] b         the byte value to be written to the channel
  *
  * @return              The operation status.
@@ -132,7 +139,7 @@ typedef struct {
  * @details This function reads a byte value from a channel. If the data
  *          is not available then the calling thread is suspended.
  *
- * @param[in] ip        pointer to a @p BaseChannel or derived class
+ * @param[in] ip        pointer to a @p BaseSequentialStream or derived class
  *
  * @return              A byte value from the queue.
  * @retval Q_RESET      if an end-of-file condition has been met.

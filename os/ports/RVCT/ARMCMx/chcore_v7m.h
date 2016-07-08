@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -165,11 +172,11 @@
 
 /**
  * @brief   PendSV priority level.
- * @note    This priority is enforced to be equal to @p CORTEX_BASEPRI_KERNEL,
- *          this handler always have the highest priority that cannot preempt
- *          the kernel.
+ * @note    This priority is enforced to be equal to
+ *          @p CORTEX_MAX_KERNEL_PRIORITY, this handler always have the
+ *          highest priority that cannot preempt the kernel.
  */
-#define CORTEX_PRIORITY_PENDSV          CORTEX_BASEPRI_KERNEL
+#define CORTEX_PRIORITY_PENDSV          CORTEX_MAX_KERNEL_PRIORITY
 
 /*===========================================================================*/
 /* Port exported info.                                                       */
@@ -198,6 +205,15 @@
 #define CH_CORE_VARIANT_NAME            "Cortex-M4F"
 #else
 #define CH_CORE_VARIANT_NAME            "Cortex-M4"
+#endif
+
+#elif (CORTEX_MODEL == CORTEX_M7)
+#define CH_ARCHITECTURE_ARM_v7ME
+#define CH_ARCHITECTURE_NAME            "ARMv7-ME"
+#if CORTEX_USE_FPU
+#define CH_CORE_VARIANT_NAME            "Cortex-M7F"
+#else
+#define CH_CORE_VARIANT_NAME            "Cortex-M7"
 #endif
 #endif
 
@@ -260,7 +276,7 @@ struct extctx {
   regarm_t      s14;
   regarm_t      s15;
   regarm_t      fpscr;
-  regarm_t      fpccr;
+  regarm_t      reserved;
 #endif /* CORTEX_USE_FPU */
 };
 

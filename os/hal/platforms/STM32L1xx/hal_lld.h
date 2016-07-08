@@ -25,6 +25,8 @@
  *          .
  *          One of the following macros must also be defined:
  *          - STM32L1XX_MD for Ultra Low Power Medium-density devices.
+ *          - STM32L1XX_MDP for Ultra Low Power Medium-density Plus devices.
+ *          - STM32L1XX_HD for Ultra Low Power High-density devices.
  *          .
  *
  * @addtogroup HAL
@@ -35,6 +37,7 @@
 #define _HAL_LLD_H_
 
 #include "stm32.h"
+#include "stm32_registry.h"
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
@@ -49,7 +52,21 @@
  * @name    Platform identification
  * @{
  */
+#if defined(STM32L1XX_MD) || defined(__DOXYGEN__)
 #define PLATFORM_NAME           "STM32L1xx Ultra Low Power Medium Density"
+#define STM32L1XX
+
+#elif defined(STM32L1XX_MDP)
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power Medium Density Plus"
+#define STM32L1XX
+
+#elif defined(STM32L1XX_HD)
+#define PLATFORM_NAME           "STM32L1xx Ultra Low Power High Density"
+#define STM32L1XX
+
+#else
+#error "STM32L1xx device not specified"
+#endif
 /** @} */
 
 /**
@@ -135,10 +152,10 @@
 #define STM32_MCOSEL_LSE        (7 << 24)   /**< LSE clock on MCO pin.      */
 
 #define STM32_MCOPRE_DIV1       (0 << 28)   /**< MCO divided by 1.          */
-#define STM32_MCOPRE_DIV2       (1 << 28)   /**< MCO divided by 1.          */
-#define STM32_MCOPRE_DIV4       (2 << 28)   /**< MCO divided by 1.          */
-#define STM32_MCOPRE_DIV8       (3 << 28)   /**< MCO divided by 1.          */
-#define STM32_MCOPRE_DIV16      (4 << 28)   /**< MCO divided by 1.          */
+#define STM32_MCOPRE_DIV2       (1 << 28)   /**< MCO divided by 2.          */
+#define STM32_MCOPRE_DIV4       (2 << 28)   /**< MCO divided by 4.          */
+#define STM32_MCOPRE_DIV8       (3 << 28)   /**< MCO divided by 8.          */
+#define STM32_MCOPRE_DIV16      (4 << 28)   /**< MCO divided by 16.         */
 /** @} */
 
 /**
@@ -164,159 +181,6 @@
 #define STM32_RTCSEL_LSE        (1 << 16)   /**< RTC source is LSE.         */
 #define STM32_RTCSEL_LSI        (2 << 16)   /**< RTC source is LSI.         */
 #define STM32_RTCSEL_HSEDIV     (3 << 16)   /**< RTC source is HSE divided. */
-/** @} */
-
-/*===========================================================================*/
-/* Platform capabilities.                                                    */
-/*===========================================================================*/
-
-/**
- * @name    STM32L1xx capabilities
- * @{
- */
-/* ADC attributes.*/
-#define STM32_HAS_ADC1          TRUE
-#define STM32_HAS_ADC2          FALSE
-#define STM32_HAS_ADC3          FALSE
-#define STM32_HAS_ADC4          FALSE
-
-/* CAN attributes.*/
-#define STM32_HAS_CAN1          FALSE
-#define STM32_HAS_CAN2          FALSE
-#define STM32_CAN_MAX_FILTERS   0
-
-/* DAC attributes.*/
-#define STM32_HAS_DAC           TRUE
-
-/* DMA attributes.*/
-#define STM32_ADVANCED_DMA      FALSE
-#define STM32_HAS_DMA1          TRUE
-#define STM32_HAS_DMA2          FALSE
-
-/* ETH attributes.*/
-#define STM32_HAS_ETH           FALSE
-
-/* EXTI attributes.*/
-#define STM32_EXTI_NUM_CHANNELS 23
-
-/* GPIO attributes.*/
-#define STM32_HAS_GPIOA         TRUE
-#define STM32_HAS_GPIOB         TRUE
-#define STM32_HAS_GPIOC         TRUE
-#define STM32_HAS_GPIOD         TRUE
-#define STM32_HAS_GPIOE         TRUE
-#define STM32_HAS_GPIOF         FALSE
-#define STM32_HAS_GPIOG         FALSE
-#define STM32_HAS_GPIOH         TRUE
-#define STM32_HAS_GPIOI         FALSE
-
-/* I2C attributes.*/
-#define STM32_HAS_I2C1          TRUE
-#define STM32_I2C1_RX_DMA_MSK   (STM32_DMA_STREAM_ID_MSK(1, 7))
-#define STM32_I2C1_RX_DMA_CHN   0x00000000
-#define STM32_I2C1_TX_DMA_MSK   (STM32_DMA_STREAM_ID_MSK(1, 6))
-#define STM32_I2C1_TX_DMA_CHN   0x00000000
-
-#define STM32_HAS_I2C2          TRUE
-#define STM32_I2C2_RX_DMA_MSK   (STM32_DMA_STREAM_ID_MSK(1, 5))
-#define STM32_I2C2_RX_DMA_CHN   0x00000000
-#define STM32_I2C2_TX_DMA_MSK   (STM32_DMA_STREAM_ID_MSK(1, 4))
-#define STM32_I2C2_TX_DMA_CHN   0x00000000
-
-#define STM32_HAS_I2C3          FALSE
-#define STM32_I2C3_RX_DMA_MSK   0
-#define STM32_I2C3_RX_DMA_CHN   0x00000000
-#define STM32_I2C3_TX_DMA_MSK   0
-#define STM32_I2C3_TX_DMA_CHN   0x00000000
-
-/* RTC attributes.*/
-#define STM32_HAS_RTC           TRUE
-#define STM32_RTC_HAS_SUBSECONDS FALSE
-#define STM32_RTC_IS_CALENDAR   TRUE
-
-/* SDIO attributes.*/
-#define STM32_HAS_SDIO          TRUE
-
-/* SPI attributes.*/
-#define STM32_HAS_SPI1          TRUE
-#define STM32_SPI1_RX_DMA_MSK   STM32_DMA_STREAM_ID_MSK(1, 2)
-#define STM32_SPI1_RX_DMA_CHN   0x00000000
-#define STM32_SPI1_TX_DMA_MSK   STM32_DMA_STREAM_ID_MSK(1, 3)
-#define STM32_SPI1_TX_DMA_CHN   0x00000000
-
-#define STM32_HAS_SPI2          TRUE
-#define STM32_SPI2_RX_DMA_MSK   STM32_DMA_STREAM_ID_MSK(1, 4)
-#define STM32_SPI2_RX_DMA_CHN   0x00000000
-#define STM32_SPI2_TX_DMA_MSK   STM32_DMA_STREAM_ID_MSK(1, 5)
-#define STM32_SPI2_TX_DMA_CHN   0x00000000
-
-#define STM32_HAS_SPI3          FALSE
-#define STM32_HAS_SPI4          FALSE
-#define STM32_HAS_SPI5          FALSE
-#define STM32_HAS_SPI6          FALSE
-
-/* TIM attributes.*/
-#define STM32_HAS_TIM1          FALSE
-#define STM32_HAS_TIM2          TRUE
-#define STM32_HAS_TIM3          TRUE
-#define STM32_HAS_TIM4          TRUE
-#define STM32_HAS_TIM5          FALSE
-#define STM32_HAS_TIM6          TRUE
-#define STM32_HAS_TIM7          TRUE
-#define STM32_HAS_TIM8          FALSE
-#define STM32_HAS_TIM9          TRUE
-#define STM32_HAS_TIM10         TRUE
-#define STM32_HAS_TIM11         TRUE
-#define STM32_HAS_TIM12         FALSE
-#define STM32_HAS_TIM13         FALSE
-#define STM32_HAS_TIM14         FALSE
-#define STM32_HAS_TIM15         FALSE
-#define STM32_HAS_TIM16         FALSE
-#define STM32_HAS_TIM17         FALSE
-#define STM32_HAS_TIM18         FALSE
-#define STM32_HAS_TIM19         FALSE
-
-/* USART attributes.*/
-#define STM32_HAS_USART1        TRUE
-#define STM32_USART1_RX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 5))
-#define STM32_USART1_RX_DMA_CHN 0x00000000
-#define STM32_USART1_TX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 4))
-#define STM32_USART1_TX_DMA_CHN 0x00000000
-
-#define STM32_HAS_USART2        TRUE
-#define STM32_USART2_RX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 6))
-#define STM32_USART2_RX_DMA_CHN 0x00000000
-#define STM32_USART2_TX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 7))
-#define STM32_USART2_TX_DMA_CHN 0x00000000
-
-#define STM32_HAS_USART3        TRUE
-#define STM32_USART3_RX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 3))
-#define STM32_USART3_RX_DMA_CHN 0x00000000
-#define STM32_USART3_TX_DMA_MSK (STM32_DMA_STREAM_ID_MSK(1, 2))
-#define STM32_USART3_TX_DMA_CHN 0x00000000
-
-#define STM32_HAS_UART4         FALSE
-#define STM32_UART4_RX_DMA_MSK  0
-#define STM32_UART4_RX_DMA_CHN  0x00000000
-#define STM32_UART4_TX_DMA_MSK  0
-#define STM32_UART4_TX_DMA_CHN  0x00000000
-
-#define STM32_HAS_UART5         FALSE
-#define STM32_UART5_RX_DMA_MSK  0
-#define STM32_UART5_RX_DMA_CHN  0x00000000
-#define STM32_UART5_TX_DMA_MSK  0
-#define STM32_UART5_TX_DMA_CHN  0x00000000
-
-#define STM32_HAS_USART6        FALSE
-#define STM32_USART6_RX_DMA_MSK 0
-#define STM32_USART6_RX_DMA_CHN 0x00000000
-#define STM32_USART6_TX_DMA_MSK 0
-#define STM32_USART6_TX_DMA_CHN 0x00000000
-
-/* USB attributes.*/
-#define STM32_HAS_USB           TRUE
-#define STM32_HAS_OTG1          FALSE
-#define STM32_HAS_OTG2          FALSE
 /** @} */
 
 /*===========================================================================*/
@@ -440,7 +304,7 @@
 /**
  * @brief   Enables or disables the LSE clock source.
  */
-#if !defined(STM32_HSE_ENABLED) || defined(__DOXYGEN__)
+#if !defined(STM32_LSE_ENABLED) || defined(__DOXYGEN__)
 #define STM32_LSE_ENABLED           FALSE
 #endif
 
@@ -674,9 +538,15 @@
 /* LSI related checks.*/
 #if STM32_LSI_ENABLED
 #else /* !STM32_LSI_ENABLED */
-#if STM32_RTCCLK == STM32_LSICLK
-#error "required LSI clock is not enabled"
+
+#if STM32_MCOSEL == STM32_MCOSEL_LSI
+#error "LSI not enabled, required by STM32_MCOSEL"
 #endif
+
+#if STM32_RTCSEL == STM32_RTCSEL_LSI
+#error "LSI not enabled, required by STM32_RTCSEL"
+#endif
+
 #endif /* !STM32_LSI_ENABLED */
 
 /* LSE related checks.*/
@@ -687,10 +557,17 @@
 #if (STM32_LSECLK < 1000) || (STM32_LSECLK > 1000000)
 #error "STM32_LSECLK outside acceptable range (1...1000kHz)"
 #endif
+
 #else /* !STM32_LSE_ENABLED */
-#if STM32_RTCCLK == STM32_LSECLK
-#error "required LSE clock is not enabled"
+
+#if STM32_MCOSEL == STM32_MCOSEL_LSE
+#error "LSE not enabled, required by STM32_MCOSEL"
 #endif
+
+#if STM32_RTCSEL == STM32_RTCSEL_LSE
+#error "LSE not enabled, required by STM32_RTCSEL"
+#endif
+
 #endif /* !STM32_LSE_ENABLED */
 
 /* PLL related checks.*/
@@ -899,7 +776,7 @@
 #endif
 
 /**
- * @brief   MCO divider clock.
+ * @brief   MCO clock before divider.
  */
 #if (STM32_MCOSEL == STM32_MCOSEL_NOCLOCK) || defined(__DOXYGEN__)
 #define STM32_MCODIVCLK             0

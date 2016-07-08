@@ -39,9 +39,7 @@
      defined(STM32F30X) || defined(STM32F37X) ||                              \
      defined(STM32F1XX) || defined(STM32F10X_MD) || defined(STM32F10X_LD) ||  \
      defined(STM32F10X_HD) || defined(STM32F10X_CL) || defined(STM32F0XX) ||  \
-     defined(LPC122X) || defined(LPC17XX) || defined(__DOXYGEN__))
-#if STM32_RTC_IS_CALENDAR || LPC17xx_RTC_IS_CALENDAR
-
+     defined(LPC122X) || defined(__DOXYGEN__))
 #if STM32_RTC_IS_CALENDAR
 /**
  * @brief   Converts from STM32 BCD to canonicalized time format.
@@ -288,7 +286,12 @@ void rtcSetTimeUnixSec(RTCDriver *rtcp, time_t tv_sec) {
 #endif
   struct tm timp;
 
+#if defined __GNUC__
   localtime_r(&tv_sec, &timp);
+#else
+  struct tm *t = localtime(&tv_sec);
+  memcpy(&timp, t, sizeof(struct tm));
+#endif
   stm32_rtc_tm2bcd(&timp, &timespec);
   rtcSetTime(rtcp, &timespec);
 #endif
@@ -340,7 +343,14 @@ void rtcGetTimeTm(RTCDriver *rtcp, struct tm *timp) {
   RTCTime timespec = {0};
 
   rtcGetTime(rtcp, &timespec);
+#if defined __GNUC__
   localtime_r((time_t *)&(timespec.tv_sec), timp);
+#else
+  {
+    struct tm *t = localtime((time_t *)&(timespec.tv_sec));
+    memcpy(&timp, t, sizeof(struct tm));
+  }
+#endif
 }
 
 /**

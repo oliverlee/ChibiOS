@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /*
@@ -49,8 +56,18 @@ _port_switch    PROC
 #if CORTEX_USE_FPU
                 vpush   {s16-s31}
 #endif
-                str     sp, [r1, #CONTEXT_OFFSET]                          
+
+                str     sp, [r1, #CONTEXT_OFFSET]
+#if (CORTEX_SIMPLIFIED_PRIORITY == FALSE) &&                                \
+    ((CORTEX_MODEL == 3) || (CORTEX_MODEL == 4))
+                /* Workaround for ARM errata 752419, only applied if
+                   condition exists for it to be triggered.*/
+                ldr     r3, [r0, #CONTEXT_OFFSET]
+                mov     sp, r3
+#else
                 ldr     sp, [r0, #CONTEXT_OFFSET]
+#endif
+
 #if CORTEX_USE_FPU
                 vpop    {s16-s31}
 #endif

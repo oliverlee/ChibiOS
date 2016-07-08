@@ -1,6 +1,5 @@
 /*
     ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
-    LPC122x EXT driver - Copyright (C) 2013 Marcin Jokel
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -485,7 +484,7 @@
  */
 #if !defined(THREAD_CONTEXT_SWITCH_HOOK) || defined(__DOXYGEN__)
 #define THREAD_CONTEXT_SWITCH_HOOK(ntp, otp) {                              \
-  /* System halt code here.*/                                               \
+  /* Context switch code here.*/                                            \
 }
 #endif
 

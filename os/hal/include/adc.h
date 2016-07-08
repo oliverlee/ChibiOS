@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -81,7 +88,7 @@ typedef enum {
   ADC_READY = 2,                            /**< Ready.                     */
   ADC_ACTIVE = 3,                           /**< Converting.                */
   ADC_COMPLETE = 4,                         /**< Conversion complete.       */
-  ADC_ERROR = 5                             /**< Conversion complete.       */
+  ADC_ERROR = 5                             /**< Conversion error.          */
 } adcstate_t;
 
 #include "adc_lld.h"
@@ -261,8 +268,12 @@ typedef enum {
     (adcp)->grpp->error_cb(adcp, err);                                      \
     if ((adcp)->state == ADC_ERROR)                                         \
       (adcp)->state = ADC_READY;                                            \
+      (adcp)->grpp = NULL;                                                  \
   }                                                                         \
-  (adcp)->grpp = NULL;                                                      \
+  else {                                                                    \
+    (adcp)->state = ADC_READY;                                              \
+    (adcp)->grpp = NULL;                                                    \
+  }                                                                         \
   _adc_timeout_isr(adcp);                                                   \
 }
 /** @} */

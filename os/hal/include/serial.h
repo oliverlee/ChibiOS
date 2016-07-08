@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -139,30 +146,6 @@ struct SerialDriver {
  * @name    Macro Functions
  * @{
  */
-/**
- * @brief   Direct output check on a @p SerialDriver.
- * @note    This function bypasses the indirect access to the channel and
- *          checks directly the output queue. This is faster but cannot
- *          be used to check different channels implementations.
- *
- * @deprecated
- *
- * @api
- */
-#define sdPutWouldBlock(sdp) chOQIsFullI(&(sdp)->oqueue)
-
-/**
- * @brief   Direct input check on a @p SerialDriver.
- * @note    This function bypasses the indirect access to the channel and
- *          checks directly the input queue. This is faster but cannot
- *          be used to check different channels implementations.
- *
- * @deprecated
- *
- * @api
- */
-#define sdGetWouldBlock(sdp) chIQIsEmptyI(&(sdp)->iqueue)
-
 /**
  * @brief   Direct write to a @p SerialDriver.
  * @note    This function bypasses the indirect access to the channel and
@@ -305,6 +288,8 @@ extern "C" {
   void sdStop(SerialDriver *sdp);
   void sdIncomingDataI(SerialDriver *sdp, uint8_t b);
   msg_t sdRequestDataI(SerialDriver *sdp);
+  bool_t sdPutWouldBlock(SerialDriver *sdp);
+  bool_t sdGetWouldBlock(SerialDriver *sdp);
 #ifdef __cplusplus
 }
 #endif

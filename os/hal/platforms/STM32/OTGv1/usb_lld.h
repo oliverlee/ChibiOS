@@ -34,18 +34,19 @@
 /*===========================================================================*/
 
 /**
- * @brief   Maximum endpoint address.
+ * @brief   Status stage handling method.
  */
-#if !STM32_USB_USE_OTG2 || defined(__DOXYGEN__)
-#define USB_MAX_ENDPOINTS                   3
-#else
-#define USB_MAX_ENDPOINTS                   5
-#endif
+#define USB_EP0_STATUS_STAGE                USB_EP0_STATUS_STAGE_SW
 
 /**
  * @brief   The address can be changed immediately upon packet reception.
  */
 #define USB_SET_ADDRESS_MODE                USB_EARLY_SET_ADDRESS
+
+/**
+ * @brief   Method for set address acknowledge.
+ */
+#define USB_SET_ADDRESS_ACK_HANDLING        USB_SET_ADDRESS_ACK_SW
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
@@ -54,7 +55,7 @@
 /**
  * @brief   OTG1 driver enable switch.
  * @details If set to @p TRUE the support for OTG_FS is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_USB_USE_OTG1) || defined(__DOXYGEN__)
 #define STM32_USB_USE_OTG1                  FALSE
@@ -63,7 +64,7 @@
 /**
  * @brief   OTG2 driver enable switch.
  * @details If set to @p TRUE the support for OTG_HS is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_USB_USE_OTG2) || defined(__DOXYGEN__)
 #define STM32_USB_USE_OTG2                  FALSE
@@ -135,6 +136,15 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
+
+/**
+ * @brief   Maximum endpoint address.
+ */
+#if !STM32_USB_USE_OTG2 || defined(__DOXYGEN__)
+#define USB_MAX_ENDPOINTS                   3
+#else
+#define USB_MAX_ENDPOINTS                   5
+#endif
 
 #if STM32_USB_USE_OTG1 && !STM32_HAS_OTG1
 #error "OTG1 not present in the selected device"
@@ -221,6 +231,10 @@ typedef struct {
       OutputQueue               *txqueue;
     } queue;
   } mode;
+  /**
+   * @brief   Total transmit transfer size.
+   */
+  size_t                        totsize;
 } USBInEndpointState;
 
 /**
@@ -253,6 +267,10 @@ typedef struct {
       InputQueue               *rxqueue;
     } queue;
   } mode;
+  /**
+   * @brief   Total transmit transfer size.
+   */
+  size_t                        totsize;
 } USBOutEndpointState;
 
 /**

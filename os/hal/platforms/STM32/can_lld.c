@@ -65,8 +65,8 @@ CANDriver CAND2;
  * @notapi
  */
 static void can_lld_set_filters(uint32_t can2sb,
-                         uint32_t num,
-                         const CANFilter *cfp) {
+                                uint32_t num,
+                                const CANFilter *cfp) {
 
   /* Temporarily enabling CAN1 clock.*/
   rccEnableCAN1(FALSE);
@@ -106,12 +106,19 @@ static void can_lld_set_filters(uint32_t can2sb,
        CANs.*/
     CAN1->sFilterRegister[0].FR1 = 0;
     CAN1->sFilterRegister[0].FR2 = 0;
+#if STM32_HAS_CAN2
     CAN1->sFilterRegister[can2sb].FR1 = 0;
     CAN1->sFilterRegister[can2sb].FR2 = 0;
+#endif
     CAN1->FM1R = 0;
     CAN1->FFA1R = 0;
+#if STM32_HAS_CAN2
     CAN1->FS1R = 1 | (1 << can2sb);
     CAN1->FA1R = 1 | (1 << can2sb);
+#else
+    CAN1->FS1R = 1;
+    CAN1->FA1R = 1;
+#endif
   }
   CAN1->FMR &= ~CAN_FMR_FINIT;
 
@@ -127,13 +134,51 @@ static void can_lld_set_filters(uint32_t can2sb,
  * @notapi
  */
 static void can_lld_tx_handler(CANDriver *canp) {
+  uint32_t tsr;
+  flagsmask_t flags;
 
-  /* No more events until a message is transmitted.*/
-  canp->can->TSR = CAN_TSR_RQCP0 | CAN_TSR_RQCP1 | CAN_TSR_RQCP2;
+  /* Clearing IRQ sources.*/
+  tsr = canp->can->TSR;
+  canp->can->TSR = tsr;
+
+  /* Flags to be signaled through the TX event source.*/
+  flags = 0U;
+
+  /* Checking mailbox 0.*/
+  if ((tsr & CAN_TSR_RQCP0) != 0U) {
+    if ((tsr & (CAN_TSR_ALST0 | CAN_TSR_TERR0)) != 0U) {
+      flags |= CAN_MAILBOX_TO_MASK(1U) << 16U;
+    }
+    else {
+      flags |= CAN_MAILBOX_TO_MASK(1U);
+    }
+  }
+
+  /* Checking mailbox 1.*/
+  if ((tsr & CAN_TSR_RQCP1) != 0U) {
+    if ((tsr & (CAN_TSR_ALST1 | CAN_TSR_TERR1)) != 0U) {
+      flags |= CAN_MAILBOX_TO_MASK(2U) << 16U;
+    }
+    else {
+      flags |= CAN_MAILBOX_TO_MASK(2U);
+    }
+  }
+
+  /* Checking mailbox 2.*/
+  if ((tsr & CAN_TSR_RQCP2) != 0U) {
+    if ((tsr & (CAN_TSR_ALST2 | CAN_TSR_TERR2)) != 0U) {
+      flags |= CAN_MAILBOX_TO_MASK(3U) << 16U;
+    }
+    else {
+      flags |= CAN_MAILBOX_TO_MASK(3U);
+    }
+  }
+
+  /* Signaling flags and waking up threads waiting for a transmission slot.*/
   chSysLockFromIsr();
   while (chSemGetCounterI(&canp->txsem) < 0)
     chSemSignalI(&canp->txsem);
-  chEvtBroadcastFlagsI(&canp->txempty_event, CAN_MAILBOX_TO_MASK(1));
+  chEvtBroadcastFlagsI(&canp->txempty_event, CAN_MAILBOX_TO_MASK(flags));
   chSysUnlockFromIsr();
 }
 
@@ -383,7 +428,6 @@ void can_lld_init(void) {
 #else
   can_lld_set_filters(STM32_CAN_MAX_FILTERS, 0, NULL);
 #endif
-
 }
 
 /**
@@ -698,8 +742,8 @@ void can_lld_wakeup(CANDriver *canp) {
  */
 void canSTM32SetFilters(uint32_t can2sb, uint32_t num, const CANFilter *cfp) {
 
-  chDbgCheck((can2sb > 1) && (can2sb < STM32_CAN_MAX_FILTERS) &&
-             (num < STM32_CAN_MAX_FILTERS),
+  chDbgCheck((can2sb >= 1) && (can2sb < STM32_CAN_MAX_FILTERS) &&
+             (num <= STM32_CAN_MAX_FILTERS),
              "canSTM32SetFilters");
 
 #if STM32_CAN_USE_CAN1
