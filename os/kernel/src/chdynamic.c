@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -70,8 +77,7 @@ void chThdRelease(Thread *tp) {
   chSysLock();
   chDbgAssert(tp->p_refs > 0, "chThdRelease(), #1", "not referenced");
   refs = --tp->p_refs;
-  chSysUnlock();
-
+ 
   /* If the references counter reaches zero and the thread is in its
      terminated state then the memory can be returned to the proper
      allocator. Of course static threads are not affected.*/
@@ -82,19 +88,25 @@ void chThdRelease(Thread *tp) {
 #if CH_USE_REGISTRY
       REG_REMOVE(tp);
 #endif
-      chHeapFree(tp);
-      break;
+     chSysUnlock();
+     chHeapFree(tp);
+     break;
 #endif
 #if CH_USE_MEMPOOLS
     case THD_MEM_MODE_MEMPOOL:
 #if CH_USE_REGISTRY
       REG_REMOVE(tp);
 #endif
+      chSysUnlock();
       chPoolFree(tp->p_mpool, tp);
       break;
 #endif
+    default:
+      chSysUnlock();
     }
   }
+  else
+    chSysUnlock();
 }
 
 #if CH_USE_HEAP || defined(__DOXYGEN__)

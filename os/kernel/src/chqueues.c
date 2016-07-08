@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -384,7 +391,7 @@ msg_t chOQGetI(OutputQueue *oqp) {
  *          buffer.
  *
  * @param[in] oqp       pointer to an @p OutputQueue structure
- * @param[out] bp       pointer to the data buffer
+ * @param[in] bp        pointer to the data buffer
  * @param[in] n         the maximum amount of data to be transferred, the
  *                      value 0 is reserved
  * @param[in] time      the number of ticks before the operation timeouts,

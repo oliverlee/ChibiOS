@@ -33,7 +33,10 @@
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
 
-#define TRDT_VALUE      5
+#define TRDT_VALUE              5
+
+#define EP0_MAX_INSIZE          64
+#define EP0_MAX_OUTSIZE         64
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -147,32 +150,11 @@ static void otg_disable_ep(USBDriver *usbp) {
   unsigned i;
 
   for (i = 0; i <= usbp->otgparams->num_endpoints; i++) {
-    /* Disable only if enabled because this sentence in the manual:
-       "The application must set this bit only if Endpoint Enable is
-        already set for this endpoint".*/
-    if ((otgp->ie[i].DIEPCTL & DIEPCTL_EPENA) != 0) {
-      otgp->ie[i].DIEPCTL = DIEPCTL_EPDIS;
-      /* Wait for endpoint disable.*/
-      while (!(otgp->ie[i].DIEPINT & DIEPINT_EPDISD))
-        ;
-    }
-    else
-      otgp->ie[i].DIEPCTL = 0;
+    otgp->ie[i].DIEPCTL = 0;
     otgp->ie[i].DIEPTSIZ = 0;
     otgp->ie[i].DIEPINT = 0xFFFFFFFF;
-    /* Disable only if enabled because this sentence in the manual:
-       "The application must set this bit only if Endpoint Enable is
-        already set for this endpoint".
-       Note that the attempt to disable the OUT EP0 is ignored by the
-       hardware but the code is simpler this way.*/
-    if ((otgp->oe[i].DOEPCTL & DOEPCTL_EPENA) != 0) {
-      otgp->oe[i].DOEPCTL = DOEPCTL_EPDIS;
-      /* Wait for endpoint disable.*/
-      while (!(otgp->oe[i].DOEPINT & DOEPINT_OTEPDIS))
-        ;
-    }
-    else
-      otgp->oe[i].DOEPCTL = 0;
+
+    otgp->oe[i].DOEPCTL = 0;
     otgp->oe[i].DOEPTSIZ = 0;
     otgp->oe[i].DOEPINT = 0xFFFFFFFF;
   }
@@ -530,11 +512,11 @@ static bool_t otg_txfifo_handler(USBDriver *usbp, usbep_t ep) {
                                  n);
       usbp->epc[ep]->in_state->mode.linear.txbuf += n;
     }
-    usbp->epc[ep]->in_state->txcnt += n;
-  }
 #if STM32_USB_OTGFIFO_FILL_BASEPRI
   __set_BASEPRI(0);
 #endif
+    usbp->epc[ep]->in_state->txcnt += n;
+  }
 }
 
 /**
@@ -556,7 +538,23 @@ static void otg_epin_handler(USBDriver *usbp, usbep_t ep) {
   }
   if ((epint & DIEPINT_XFRC) && (otgp->DIEPMSK & DIEPMSK_XFRCM)) {
     /* Transmit transfer complete.*/
-    _usb_isr_invoke_in_cb(usbp, ep);
+    USBInEndpointState *isp = usbp->epc[ep]->in_state;
+
+    if (isp->txsize < isp->totsize) {
+      /* In case the transaction covered only part of the total transfer
+         then another transaction is immediately started in order to
+         cover the remaining.*/
+      isp->txsize = isp->totsize - isp->txsize;
+      isp->txcnt  = 0;
+      usb_lld_prepare_transmit(usbp, ep);
+      chSysLockFromIsr();
+      usb_lld_start_in(usbp, ep);
+      chSysUnlockFromIsr();
+    }
+    else {
+      /* End on IN transfer.*/
+      _usb_isr_invoke_in_cb(usbp, ep);
+    }
   }
   if ((epint & DIEPINT_TXFE) &&
       (otgp->DIEPEMPMSK & DIEPEMPMSK_INEPTXFEM(ep))) {
@@ -592,7 +590,23 @@ static void otg_epout_handler(USBDriver *usbp, usbep_t ep) {
   }
   if ((epint & DOEPINT_XFRC) && (otgp->DOEPMSK & DOEPMSK_XFRCM)) {
     /* Receive transfer complete.*/
-    _usb_isr_invoke_out_cb(usbp, ep);
+    USBOutEndpointState *osp = usbp->epc[ep]->out_state;
+
+    if (osp->rxsize < osp->totsize) {
+      /* In case the transaction covered only part of the total transfer
+         then another transaction is immediately started in order to
+         cover the remaining.*/
+      osp->rxsize = osp->totsize - osp->rxsize;
+      osp->rxcnt  = 0;
+      usb_lld_prepare_receive(usbp, ep);
+      chSysLockFromIsr();
+      usb_lld_start_out(usbp, ep);
+      chSysUnlockFromIsr();
+    }
+    else {
+      /* End on OUT transfer.*/
+      _usb_isr_invoke_out_cb(usbp, ep);
+    }
   }
 }
 
@@ -607,7 +621,8 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
   stm32_otg_t *otgp = usbp->otg;
   uint32_t sts, src;
 
-  sts = otgp->GINTSTS & otgp->GINTMSK;
+  sts  = otgp->GINTSTS;
+  sts &= otgp->GINTMSK;
   otgp->GINTSTS = sts;
 
   /* Reset interrupt handling.*/
@@ -730,8 +745,6 @@ static msg_t usb_lld_pump(void *p) {
     }
     chSysLock();
   }
-  chSysUnlock();
-  return 0;
 }
 
 #if STM32_USB_USE_OTG1 || defined(__DOXYGEN__)
@@ -800,7 +813,7 @@ void usb_lld_init(void) {
                     (uint8_t *)wsp + sizeof(Thread),
                     CH_THREAD_FILL_VALUE);
     _thread_memfill((uint8_t *)wsp + sizeof(Thread),
-                    (uint8_t *)wsp + sizeof(USBD1.wa_pump) - sizeof(Thread),
+                    (uint8_t *)wsp + sizeof(USBD1.wa_pump),
                     CH_STACK_FILL_VALUE);
   }
 #endif
@@ -822,7 +835,7 @@ void usb_lld_init(void) {
                     (uint8_t *)wsp + sizeof(Thread),
                     CH_THREAD_FILL_VALUE);
     _thread_memfill((uint8_t *)wsp + sizeof(Thread),
-                    (uint8_t *)wsp + sizeof(USBD2.wa_pump) - sizeof(Thread),
+                    (uint8_t *)wsp + sizeof(USBD2.wa_pump),
                     CH_STACK_FILL_VALUE);
   }
 #endif
@@ -860,6 +873,10 @@ void usb_lld_start(USBDriver *usbp) {
       /* OTG HS clock enable and reset.*/
       rccEnableOTG_HS(FALSE);
       rccResetOTG_HS();
+
+      /* Workaround for the problem described here:
+         http://forum.chibios.org/phpbb/viewtopic.php?f=16&t=1798 */
+      rccDisableOTG_HSULPI(TRUE);
 
       /* Enables IRQ vector.*/
       nvicEnableVector(STM32_OTG2_NUMBER,
@@ -946,17 +963,17 @@ void usb_lld_stop(USBDriver *usbp) {
     otgp->GAHBCFG    = 0;
     otgp->GCCFG      = 0;
 
-#if STM32_USB_USE_USB1
+#if STM32_USB_USE_OTG1
     if (&USBD1 == usbp) {
       nvicDisableVector(STM32_OTG1_NUMBER);
-      rccDisableOTG1(FALSE);
+      rccDisableOTG_FS(FALSE);
     }
 #endif
 
-#if STM32_USB_USE_USB2
+#if STM32_USB_USE_OTG2
     if (&USBD2 == usbp) {
       nvicDisableVector(STM32_OTG2_NUMBER);
-      rccDisableOTG2(FALSE);
+      rccDisableOTG_HS(FALSE);
     }
 #endif
   }
@@ -1192,10 +1209,14 @@ void usb_lld_prepare_receive(USBDriver *usbp, usbep_t ep) {
   USBOutEndpointState *osp = usbp->epc[ep]->out_state;
 
   /* Transfer initialization.*/
+  osp->totsize = osp->rxsize;
+  if ((ep == 0) && (osp->rxsize  > EP0_MAX_OUTSIZE))
+      osp->rxsize = EP0_MAX_OUTSIZE;
+
   pcnt = (osp->rxsize + usbp->epc[ep]->out_maxsize - 1) /
          usbp->epc[ep]->out_maxsize;
   usbp->otg->oe[ep].DOEPTSIZ = DOEPTSIZ_STUPCNT(3) | DOEPTSIZ_PKTCNT(pcnt) |
-                               DOEPTSIZ_XFRSIZ(usbp->epc[ep]->out_maxsize);
+                               DOEPTSIZ_XFRSIZ(osp->rxsize);
 
 }
 
@@ -1211,18 +1232,21 @@ void usb_lld_prepare_transmit(USBDriver *usbp, usbep_t ep) {
   USBInEndpointState *isp = usbp->epc[ep]->in_state;
 
   /* Transfer initialization.*/
+  isp->totsize = isp->txsize;
   if (isp->txsize == 0) {
     /* Special case, sending zero size packet.*/
     usbp->otg->ie[ep].DIEPTSIZ = DIEPTSIZ_PKTCNT(1) | DIEPTSIZ_XFRSIZ(0);
   }
   else {
+    if ((ep == 0) && (isp->txsize  > EP0_MAX_INSIZE))
+      isp->txsize = EP0_MAX_INSIZE;
+
     /* Normal case.*/
     uint32_t pcnt = (isp->txsize + usbp->epc[ep]->in_maxsize - 1) /
                     usbp->epc[ep]->in_maxsize;
     usbp->otg->ie[ep].DIEPTSIZ = DIEPTSIZ_PKTCNT(pcnt) |
-                                 DIEPTSIZ_XFRSIZ(usbp->epc[ep]->in_state->txsize);
+                                 DIEPTSIZ_XFRSIZ(isp->txsize);
   }
-
 }
 
 /**

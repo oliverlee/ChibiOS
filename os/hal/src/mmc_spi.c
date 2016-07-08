@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 /*
    Parts of this file have been contributed by Matthias Blaicher.
@@ -112,7 +119,7 @@ static bool_t mmc_read(void *instance, uint32_t startblk,
     n--;
   }
   if (mmcStopSequentialRead((MMCDriver *)instance))
-      return CH_FAILED;
+    return CH_FAILED;
   return CH_SUCCESS;
 }
 
@@ -120,15 +127,15 @@ static bool_t mmc_write(void *instance, uint32_t startblk,
                  const uint8_t *buffer, uint32_t n) {
 
   if (mmcStartSequentialWrite((MMCDriver *)instance, startblk))
-      return CH_FAILED;
+    return CH_FAILED;
   while (n > 0) {
-      if (mmcSequentialWrite((MMCDriver *)instance, buffer))
-          return CH_FAILED;
-      buffer += MMCSD_BLOCK_SIZE;
-      n--;
+    if (mmcSequentialWrite((MMCDriver *)instance, buffer))
+        return CH_FAILED;
+    buffer += MMCSD_BLOCK_SIZE;
+    n--;
   }
   if (mmcStopSequentialWrite((MMCDriver *)instance))
-      return CH_FAILED;
+    return CH_FAILED;
   return CH_SUCCESS;
 }
 
@@ -168,7 +175,7 @@ static void wait(MMCDriver *mmcp) {
     spiReceive(mmcp->config->spip, 1, buf);
     if (buf[0] == 0xFF)
       break;
-#ifdef MMC_NICE_WAITING
+#if MMC_NICE_WAITING
     /* Trying to be nice with the other threads.*/
     chThdSleep(1);
 #endif
@@ -348,7 +355,7 @@ static void sync(MMCDriver *mmcp) {
     spiReceive(mmcp->config->spip, 1, buf);
     if (buf[0] == 0xFF)
       break;
-#ifdef MMC_NICE_WAITING
+#if MMC_NICE_WAITING
     chThdSleep(1);      /* Trying to be nice with the other threads.*/
 #endif
   }
@@ -448,6 +455,7 @@ bool_t mmcConnect(MMCDriver *mmcp) {
 
   /* Connection procedure in progress.*/
   mmcp->state = BLK_CONNECTING;
+  mmcp->block_addresses = FALSE;
 
   /* Slow clock mode and 128 clock pulses.*/
   spiStart(mmcp->config->spip, mmcp->config->lscfg);

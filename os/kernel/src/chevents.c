@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 /*
    Concepts and parts of this file have been contributed by Scott (skute).
@@ -351,7 +358,7 @@ eventmask_t chEvtWaitOne(eventmask_t mask) {
     chSchGoSleepS(THD_STATE_WTOREVT);
     m = ctp->p_epending & mask;
   }
-  m &= -m;
+  m ^= m & (m - 1);
   ctp->p_epending &= ~m;
 
   chSysUnlock();
@@ -454,7 +461,7 @@ eventmask_t chEvtWaitOneTimeout(eventmask_t mask, systime_t time) {
     }
     m = ctp->p_epending & mask;
   }
-  m &= -m;
+  m ^= m & (m - 1);
   ctp->p_epending &= ~m;
 
   chSysUnlock();

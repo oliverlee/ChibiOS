@@ -16,12 +16,9 @@
 
 #include "ch.hpp"
 #include "hal.h"
-#include "fs.hpp"
-#include "fatfs_fsimpl.hpp"
 #include "test.h"
 
 using namespace chibios_rt;
-using namespace chibios_fatfs;
 
 /*
  * LED blink sequences.
@@ -147,8 +144,6 @@ static SequencerThread blinker2(LED4_sequence);
 static SequencerThread blinker3(LED5_sequence);
 static SequencerThread blinker4(LED6_sequence);
 
-static FatFSWrapper fs;
-
 /*
  * Application entry point.
  */
@@ -163,9 +158,6 @@ int main(void) {
    */
   halInit();
   System::init();
-
-  fs.mount();
-  fs.unmount();
 
   /*
    * Activates the serial driver 2 using the driver default configuration.

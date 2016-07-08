@@ -166,11 +166,16 @@ static void serve_interrupt(SerialDriver *sdp) {
 
   /* Data available.*/
   chSysLockFromIsr();
-  while (sr & USART_SR_RXNE) {
+  while (sr & (USART_SR_RXNE | USART_SR_ORE | USART_SR_NE | USART_SR_FE |
+               USART_SR_PE)) {
+    uint8_t b;
+
     /* Error condition detection.*/
     if (sr & (USART_SR_ORE | USART_SR_NE | USART_SR_FE  | USART_SR_PE))
       set_error(sdp, sr);
-    sdIncomingDataI(sdp, u->DR);
+    b = u->DR;
+    if (sr & USART_SR_RXNE)
+      sdIncomingDataI(sdp, b);
     sr = u->SR;
   }
   chSysUnlockFromIsr();
@@ -192,10 +197,11 @@ static void serve_interrupt(SerialDriver *sdp) {
   /* Physical transmission end.*/
   if (sr & USART_SR_TC) {
     chSysLockFromIsr();
-    chnAddFlagsI(sdp, CHN_TRANSMISSION_END);
-    chSysUnlockFromIsr();
-    u->CR1 = cr1 & ~(USART_CR1_TXEIE | USART_CR1_TCIE);
+    if (chOQIsEmptyI(&sdp->oqueue))
+      chnAddFlagsI(sdp, CHN_TRANSMISSION_END);
+    u->CR1 = cr1 & ~USART_CR1_TCIE;
     u->SR = ~USART_SR_TC;
+    chSysUnlockFromIsr();
   }
 }
 

@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -238,6 +245,55 @@ msg_t sdRequestDataI(SerialDriver *sdp) {
   b = chOQGetI(&sdp->oqueue);
   if (b < Q_OK)
     chnAddFlagsI(sdp, CHN_OUTPUT_EMPTY);
+  return b;
+}
+
+/**
+ * @brief   Direct output check on a @p SerialDriver.
+ * @note    This function bypasses the indirect access to the channel and
+ *          checks directly the output queue. This is faster but cannot
+ *          be used to check different channels implementations.
+ *
+ * @param[in] sdp       pointer to a @p SerialDriver structure
+ * @return              The queue status.
+ * @retval false        if the next write operation would not block.
+ * @retval true         if the next write operation would block.
+ *
+ * @deprecated
+ *
+ * @api
+ */
+bool_t sdPutWouldBlock(SerialDriver *sdp) {
+  bool_t b;
+
+  chSysLock();
+  b = chOQIsFullI(&sdp->oqueue);
+  chSysUnlock();
+
+  return b;
+}
+
+/**
+ * @brief   Direct input check on a @p SerialDriver.
+ * @note    This function bypasses the indirect access to the channel and
+ *          checks directly the input queue. This is faster but cannot
+ *          be used to check different channels implementations.
+ *
+ * @return              The queue status.
+ * @retval false        if the next write operation would not block.
+ * @retval true         if the next write operation would block.
+ *
+ * @deprecated
+ *
+ * @api
+ */
+bool_t sdGetWouldBlock(SerialDriver *sdp) {
+  bool_t b;
+
+  chSysLock();
+  b = chIQIsEmptyI(&sdp->iqueue);
+  chSysUnlock();
+
   return b;
 }
 

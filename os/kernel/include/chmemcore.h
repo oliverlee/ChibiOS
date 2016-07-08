@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -31,8 +38,6 @@
 
 /**
  * @brief   Memory get function.
- * @note    This type must be assignment compatible with the @p chMemAlloc()
- *          function.
  */
 typedef void *(*memgetfunc_t)(size_t size);
 
@@ -61,7 +66,7 @@ typedef void *(*memgetfunc_t)(size_t size);
 
 /**
  * @brief   Returns whatever a pointer or memory size is aligned to
- *          the type @p align_t.
+ *          the type @p stkalign_t.
  */
 #define MEM_IS_ALIGNED(p)   (((size_t)(p) & MEM_ALIGN_MASK) == 0)
 /** @} */

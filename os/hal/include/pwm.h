@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -118,8 +125,8 @@ typedef void (*pwmcallback_t)(PWMDriver *pwmp);
  * @api
  */
 #define PWM_FRACTION_TO_WIDTH(pwmp, denominator, numerator)                 \
-  ((uint16_t)((((uint32_t)(pwmp)->period) *                                 \
-               (uint32_t)(numerator)) / (uint32_t)(denominator)))
+  ((pwmcnt_t)((((pwmcnt_t)(pwmp)->period) *                                 \
+               (pwmcnt_t)(numerator)) / (pwmcnt_t)(denominator)))
 
 /**
  * @brief   Converts from degrees to pulse width.

@@ -16,6 +16,13 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                      ---
+
+    A special exception to the GPL can be applied should you wish to distribute
+    a combined work that includes ChibiOS/RT, without being obliged to provide
+    the source code for any proprietary components. See the file exception.txt
+    for full details of how and when the exception can be applied.
 */
 
 /**
@@ -86,6 +93,12 @@ _IVOR10:
         lis         %r3, 0x0800             /* DIS bit mask.                */
         mtspr       336, %r3                /* TSR register.                */
 
+        /* Restoring pre-IRQ MSR register value.*/
+        mfSRR1      %r0
+        /* No preemption, keeping EE disabled.*/
+        se_bclri    %r0, 16                 /* EE = bit 16.                 */
+        mtMSR       %r0
+
 #if CH_DBG_SYSTEM_STATE_CHECK
         bl          dbg_check_enter_isr
         bl          dbg_check_lock_from_isr
@@ -153,18 +166,14 @@ _IVOR4:
         lwz         %r3, 0(%r3)
         mtCTR       %r3                     /* Software handler address.    */
 
-#if PPC_USE_IRQ_PREEMPTION
-        /* Allows preemption while executing the software handler.*/
-        wrteei      1
-#endif
+        /* Restoring pre-IRQ MSR register value.*/
+        mfSRR1      %r0
+        /* No preemption, keeping EE disabled.*/
+        se_bclri    %r0, 16                 /* EE = bit 16.                 */
+        mtMSR       %r0
 
         /* Exectes the software handler.*/
         bctrl
-
-#if PPC_USE_IRQ_PREEMPTION
-        /* Prevents preemption again.*/
-        wrteei      0
-#endif
 
         /* Informs the INTC that the interrupt has been served.*/
         mbar        0

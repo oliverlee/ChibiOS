@@ -484,7 +484,7 @@
  */
 #if !defined(THREAD_CONTEXT_SWITCH_HOOK) || defined(__DOXYGEN__)
 #define THREAD_CONTEXT_SWITCH_HOOK(ntp, otp) {                              \
-  /* System halt code here.*/                                               \
+  /* Context switch code here.*/                                            \
 }
 #endif
 
@@ -525,6 +525,10 @@
 /*===========================================================================*/
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
+
+/* NOTE: When changing this option you also have to enable or disable the FPU
+   in the project options.*/
+#define CORTEX_USE_FPU                  FALSE
 
 #endif  /* _CHCONF_H_ */
 
