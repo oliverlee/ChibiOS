@@ -39,7 +39,6 @@ set(CHIBIOS_SRC
     ${CHIBIOS_ROOT}/os/hal/include/gpt.h
     ${CHIBIOS_ROOT}/os/hal/include/hal.h
     ${CHIBIOS_ROOT}/os/hal/include/i2c.h
-    ${CHIBIOS_ROOT}/os/hal/include/i2s.h
     ${CHIBIOS_ROOT}/os/hal/include/icu.h
     ${CHIBIOS_ROOT}/os/hal/include/io_block.h
     ${CHIBIOS_ROOT}/os/hal/include/io_channel.h
@@ -64,7 +63,6 @@ set(CHIBIOS_SRC
     ${CHIBIOS_ROOT}/os/hal/src/gpt.c
     ${CHIBIOS_ROOT}/os/hal/src/hal.c
     ${CHIBIOS_ROOT}/os/hal/src/i2c.c
-    ${CHIBIOS_ROOT}/os/hal/src/i2s.c
     ${CHIBIOS_ROOT}/os/hal/src/icu.c
     ${CHIBIOS_ROOT}/os/hal/src/mac.c
     ${CHIBIOS_ROOT}/os/hal/src/mmcsd.c
