@@ -184,7 +184,7 @@ set(CMAKE_CXX_FLAGS "${MC_FLAGS} ${OPT_FLAGS} ${CXX_FLAGS} ${CXX_WARN_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS
     "${MC_FLAGS} ${OPT_FLAGS} -nostartfiles --specs=nano.specs --specs=nosys.specs ${LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
--Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT} ${LD_FLAGS}")
+-Wl,--no-warn-mismatch,--library-path=${CHIBIOS_RULES_PATH},--script=${CHIBIOS_LINKER_SCRIPT}")
 
 # ChibiOS build output options
 option(CHIBIOS_CREATE_BIN "Create executable binary file." FALSE)
