@@ -95,12 +95,12 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-gdwarf-4 -fvar-tracking-assignments -Os -DN
 
 # set default build type to Debug
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug" CACHE
-        STRING
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING
         "Choose the type of build, options are: Debug, Release, RelWithDebInfo."
         FORCE)
-    message("CMAKE_BUILD_TYPE not set. Using ${CMAKE_BUILD_TYPE}.")
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo)
 endif()
+message(STATUS "CMAKE_BUILD_TYPE set to ${CMAKE_BUILD_TYPE}.")
 
 ## OpenOCD post-build, flashing option
 option(OPENOCD_FLASH_TARGET "Flash target to board after build." OFF)
