@@ -114,6 +114,11 @@ include(${CHIBIOS_ROOT_DIR}/hal/hal.cmake)
 include(${CHIBIOS_ROOT_DIR}/hal/osal/rt/osal.cmake)
 # Include streams sources
 include(${CHIBIOS_ROOT_DIR}/hal/lib/streams/streams.cmake)
+# Include FATFS sources
+option(CHIBIOS_USE_FATFS "Include FAT File System module." OFF)
+if(CHIBIOS_USE_FATFS)
+    include(${CHIBIOS_ROOT_DIR}/various/fatfs_bindings/fatfs.cmake)
+endif()
 
 ## Include common RT sources
 include(${CHIBIOS_ROOT_DIR}/rt/rt.cmake)
@@ -135,6 +140,7 @@ set(CHIBIOS_INCLUDE_DIR
     ${CHIBIOS_PLATFORM_INCLUDE_DIR}
     ${CHIBIOS_PORT_INCLUDE_DIR}
     ${CHIBIOS_STARTUP_INCLUDE_DIR}
+    ${CHIBIOS_FATFS_INCLUDE_DIR}
 )
 include_directories(${CHIBIOS_INCLUDE_DIR})
 
@@ -208,13 +214,21 @@ macro(add_chibios_executable target_name)
         endif()
     endforeach()
 
-
     add_executable(${target_name}
         ${CHIBIOS_HAL_SRC} ${CHIBIOS_OSAL_SRC} ${CHIBIOS_RT_SRC} ${CHIBIOS_TEST_SRC}
         ${CHIBIOS_BOARD_SRC} ${CHIBIOS_PLATFORM_SRC} ${CHIBIOS_PORT_SRC} ${CHIBIOS_STARTUP_SRC}
         ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC} ${CHIBIOS_CPP_WRAPPERS_SRC}
-        ${ARGN}
+        ${CHIBIOS_FATFS_SRC} ${ARGN}
     )
+
+    # Extract FATFS archive
+    add_custom_command(
+        OUTPUT ${CHIBIOS_ROOT_DIR}/../ext/fatfs/src/ff.c ${CHIBIOS_ROOT_DIR}/../ext/fatfs/src/option/unicode.c
+        COMMAND ${CMAKE_COMMAND} -E tar xf ${CHIBIOS_ROOT_DIR}/../ext/fatfs-0.10b-patched.7z
+        WORKING_DIRECTORY ${CHIBIOS_ROOT_DIR}/../ext
+        COMMENT "Extracting FATFS module in ChibiOS"
+    )
+
     set_target_properties(${target_name} PROPERTIES SUFFIX ".elf")
     set(target_path ${CMAKE_CURRENT_BINARY_DIR}/${target_name}.elf)
 
