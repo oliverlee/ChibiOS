@@ -114,11 +114,11 @@ include(${CHIBIOS_ROOT_DIR}/hal/hal.cmake)
 include(${CHIBIOS_ROOT_DIR}/hal/osal/rt/osal.cmake)
 # Include streams sources
 include(${CHIBIOS_ROOT_DIR}/hal/lib/streams/streams.cmake)
+# Include various sources
+include(${CHIBIOS_ROOT_DIR}/various/various.cmake)
 # Include FATFS sources
-option(CHIBIOS_USE_FATFS "Include FAT File System module." OFF)
-if(CHIBIOS_USE_FATFS)
-    include(${CHIBIOS_ROOT_DIR}/various/fatfs_bindings/fatfs.cmake)
-endif()
+set(CHIBIOS_BUILD_WITH_FATFS OFF) # set this ON in binary specific CMakeLists.txt if needed
+include(${CHIBIOS_VARIOUS_DIR}/fatfs_bindings/fatfs.cmake)
 
 ## Include common RT sources
 include(${CHIBIOS_ROOT_DIR}/rt/rt.cmake)
@@ -134,7 +134,7 @@ set(CHIBIOS_INCLUDE_DIR
     ${CHIBIOS_RT_INCLUDE_DIR}
     ${CHIBIOS_TEST_INCLUDE_DIR}
     ${CHIBIOS_STREAMS_INCLUDE_DIR}
-    ${CHIBIOS_ROOT_DIR}/various
+    ${CHIBIOS_VARIOUS_INCLUDE_DIR}
     # board specific include directories
     ${CHIBIOS_BOARD_INCLUDE_DIR}
     ${CHIBIOS_PLATFORM_INCLUDE_DIR}
@@ -209,16 +209,22 @@ macro(add_chibios_executable target_name)
         if( (src_ext STREQUAL ".cc") OR
             (src_ext STREQUAL ".cpp") OR
             (src_ext STREQUAL ".cxx") )
-            set(CHIBIOS_CPP_WRAPPERS_SRC ${CHIBIOS_ROOT_DIR}/various/cpp_wrappers/syscalls_cpp.cpp)
+            set(CHIBIOS_CPP_WRAPPERS_SRC ${CHIBIOS_VARIOUS_DIR}/cpp_wrappers/syscalls_cpp.cpp)
             break()
         endif()
     endforeach()
 
+    if(CHIBIOS_BUILD_WITH_FATFS)
+        set(CHIBIOS_USE_FATFS_SRC ${CHIBIOS_FATFS_SRC})
+    else()
+        set(CHIBIOS_USE_FATFS_SRC)
+    endif()
+
     add_executable(${target_name}
         ${CHIBIOS_HAL_SRC} ${CHIBIOS_OSAL_SRC} ${CHIBIOS_RT_SRC} ${CHIBIOS_TEST_SRC}
         ${CHIBIOS_BOARD_SRC} ${CHIBIOS_PLATFORM_SRC} ${CHIBIOS_PORT_SRC} ${CHIBIOS_STARTUP_SRC}
-        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC} ${CHIBIOS_CPP_WRAPPERS_SRC}
-        ${CHIBIOS_FATFS_SRC} ${ARGN}
+        ${CHIBIOS_PORT_ASM} ${CHIBIOS_STARTUP_ASM} ${CHIBIOS_STREAMS_SRC} ${CHIBIOS_VARIOUS_SRC}
+        ${CHIBIOS_CPP_WRAPPERS_SRC} ${CHIBIOS_USE_FATFS_SRC} ${ARGN}
     )
 
     # Extract FATFS archive
