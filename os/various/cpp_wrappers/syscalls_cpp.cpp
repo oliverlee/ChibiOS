@@ -9,18 +9,27 @@
 extern "C" {
 #endif
 
+#ifdef LTO_SYSCALL_UNDEFINED_REFERNCE_WORKAROUND
+__attribute__((used))
+#endif
 void _exit(int status){
    (void) status;
    osalSysHalt("Unrealized");
    while(TRUE){}
 }
 
+#ifdef LTO_SYSCALL_UNDEFINED_REFERNCE_WORKAROUND
+__attribute__((used))
+#endif
 pid_t _getpid(void){
    return 1;
 }
 
 #undef errno
 extern int errno;
+#ifdef LTO_SYSCALL_UNDEFINED_REFERNCE_WORKAROUND
+__attribute__((used))
+#endif
 int _kill(int pid, int sig) {
   (void)pid;
   (void)sig;
