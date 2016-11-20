@@ -55,7 +55,7 @@
 /**
  * @brief   OTG1 driver enable switch.
  * @details If set to @p TRUE the support for OTG_FS is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE
  */
 #if !defined(STM32_USB_USE_OTG1) || defined(__DOXYGEN__)
 #define STM32_USB_USE_OTG1                  FALSE
@@ -64,7 +64,7 @@
 /**
  * @brief   OTG2 driver enable switch.
  * @details If set to @p TRUE the support for OTG_HS is included.
- * @note    The default is @p TRUE.
+ * @note    The default is @p FALSE.
  */
 #if !defined(STM32_USB_USE_OTG2) || defined(__DOXYGEN__)
 #define STM32_USB_USE_OTG2                  FALSE
@@ -146,13 +146,48 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
+/* Registry checks.*/
+#if !defined(STM32_OTG_STEPPING)
+#error "STM32_OTG_STEPPING not defined in registry"
+#endif
+
+#if (STM32_OTG_STEPPING < 1) || (STM32_OTG_STEPPING > 2)
+#error "unsupported STM32_OTG_STEPPING"
+#endif
+
+#if !defined(STM32_HAS_OTG1) || !defined(STM32_HAS_OTG2)
+#error "STM32_HAS_OTGx not defined in registry"
+#endif
+
+#if STM32_HAS_OTG1 && !defined(STM32_OTG1_ENDPOINTS)
+#error "STM32_OTG1_ENDPOINTS not defined in registry"
+#endif
+
+#if STM32_HAS_OTG2 && !defined(STM32_OTG2_ENDPOINTS)
+#error "STM32_OTG2_ENDPOINTS not defined in registry"
+#endif
+
+#if (STM32_USB_USE_OTG1 && !defined(STM32_OTG1_HANDLER)) ||                 \
+    (STM32_USB_USE_OTG2 && !defined(STM32_OTG2_HANDLER))
+#error "STM32_OTGx_HANDLER not defined in registry"
+#endif
+
+#if (STM32_USB_USE_OTG1 && !defined(STM32_OTG1_NUMBER)) ||                  \
+    (STM32_USB_USE_OTG2 && !defined(STM32_OTG2_NUMBER))
+#error "STM32_OTGx_NUMBER not defined in registry"
+#endif
+
 /**
  * @brief   Maximum endpoint address.
  */
-#if !STM32_USB_USE_OTG2 || defined(__DOXYGEN__)
-#define USB_MAX_ENDPOINTS                   3
+#if (STM32_HAS_OTG2 && STM32_USB_USE_OTG2) || defined(__DOXYGEN__)
+#if (STM32_OTG1_ENDPOINTS < STM32_OTG2_ENDPOINTS) || defined(__DOXYGEN__)
+#define USB_MAX_ENDPOINTS                   STM32_OTG2_ENDPOINTS
 #else
-#define USB_MAX_ENDPOINTS                   5
+#define USB_MAX_ENDPOINTS                   STM32_OTG1_ENDPOINTS
+#endif
+#else
+#define USB_MAX_ENDPOINTS                   STM32_OTG1_ENDPOINTS
 #endif
 
 #if STM32_USB_USE_OTG1 && !STM32_HAS_OTG1
@@ -265,7 +300,7 @@ typedef struct {
 #endif
   /* End of the mandatory fields.*/
   /**
-   * @brief   Total transmit transfer size.
+   * @brief   Total receive transfer size.
    */
   size_t                        totsize;
 } USBOutEndpointState;
@@ -434,6 +469,10 @@ struct USBDriver {
    * @brief   Current USB device configuration.
    */
   uint8_t                       configuration;
+  /**
+   * @brief   State of the driver when a suspend happened.
+   */
+  usbstate_t                    saved_state;
 #if defined(USB_DRIVER_EXT_FIELDS)
   USB_DRIVER_EXT_FIELDS
 #endif
@@ -496,10 +535,10 @@ struct USBDriver {
  *
  * @api
  */
-#if defined(STM32F7XX) || defined(__DOXYGEN__)
-#define usb_lld_connect_bus(usbp) ((usbp)->otg->DCTL &= ~DCTL_SDIS)
-#else
+#if (STM32_OTG_STEPPING == 1) || defined(__DOXYGEN__)
 #define usb_lld_connect_bus(usbp) ((usbp)->otg->GCCFG |= GCCFG_VBUSBSEN)
+#else
+#define usb_lld_connect_bus(usbp) ((usbp)->otg->DCTL &= ~DCTL_SDIS)
 #endif
 
 /**
@@ -507,10 +546,10 @@ struct USBDriver {
  *
  * @api
  */
-#if defined(STM32F7XX) || defined(__DOXYGEN__)
-#define usb_lld_disconnect_bus(usbp) ((usbp)->otg->DCTL |= DCTL_SDIS)
-#else
+#if (STM32_OTG_STEPPING == 1) || defined(__DOXYGEN__)
 #define usb_lld_disconnect_bus(usbp) ((usbp)->otg->GCCFG &= ~GCCFG_VBUSBSEN)
+#else
+#define usb_lld_disconnect_bus(usbp) ((usbp)->otg->DCTL |= DCTL_SDIS)
 #endif
 
 /*===========================================================================*/

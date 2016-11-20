@@ -246,7 +246,15 @@
                                              STM32_DMA_STREAM_ID_MSK(1, 7))
 #define STM32_SPI3_TX_DMA_CHN               0x00000000
 
-#define STM32_HAS_SPI4                      FALSE
+#define STM32_HAS_SPI4                      TRUE
+#define STM32_SPI4_SUPPORTS_I2S             FALSE
+#define STM32_SPI4_RX_DMA_MSK               (STM32_DMA_STREAM_ID_MSK(2, 0) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 3))
+#define STM32_SPI4_RX_DMA_CHN               0x00005004
+#define STM32_SPI4_TX_DMA_MSK               (STM32_DMA_STREAM_ID_MSK(2, 1) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 4))
+#define STM32_SPI4_TX_DMA_CHN               0x00050040
+
 #define STM32_HAS_SPI5                      FALSE
 #define STM32_HAS_SPI6                      FALSE
 
@@ -364,9 +372,13 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  2
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                6
 #define STM32_HAS_OTG2                      TRUE
+#define STM32_OTG2_ENDPOINTS                8
+
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
@@ -426,8 +438,14 @@
 #define STM32_CAN_MAX_FILTERS               28
 
 /* DAC attributes.*/
-#define STM32_HAS_DAC1_CH1                  FALSE
-#define STM32_HAS_DAC1_CH2                  FALSE
+#define STM32_HAS_DAC1_CH1                  TRUE
+#define STM32_DAC1_CH1_DMA_MSK              (STM32_DMA_STREAM_ID_MSK(1, 5))
+#define STM32_DAC1_CH1_DMA_CHN              0x00700000
+
+#define STM32_HAS_DAC1_CH2                  TRUE
+#define STM32_DAC1_CH2_DMA_MSK              (STM32_DMA_STREAM_ID_MSK(1, 6))
+#define STM32_DAC1_CH2_DMA_CHN              0x07000000
+
 #define STM32_HAS_DAC2_CH1                  FALSE
 #define STM32_HAS_DAC2_CH2                  FALSE
 
@@ -716,9 +734,13 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  1
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                3
 #define STM32_HAS_OTG2                      TRUE
+#define STM32_OTG2_ENDPOINTS                5
+
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
@@ -830,7 +852,8 @@
 #define STM32_DMA2_CH7_NUMBER               70
 
 /* ETH attributes.*/
-#if defined(STM32F405xx) || defined(STM32F415xx)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F205xx) || \
+    defined(STM32F215xx)
 #define STM32_HAS_ETH                       FALSE
 #else
 #define STM32_HAS_ETH                       TRUE
@@ -1051,9 +1074,13 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  1
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                3
 #define STM32_HAS_OTG2                      TRUE
+#define STM32_OTG2_ENDPOINTS                5
+
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
@@ -1338,9 +1365,12 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  1
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                4
 #define STM32_HAS_OTG2                      FALSE
+
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
@@ -1624,9 +1654,12 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  1
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                4
+
 #define STM32_HAS_OTG2                      FALSE
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
