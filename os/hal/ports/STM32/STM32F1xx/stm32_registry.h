@@ -859,7 +859,10 @@
 #define STM32_HAS_DMA2D                     FALSE
 
 /* FSMC attributes.*/
-#define STM32_HAS_FSMC                      FALSE
+#define STM32_HAS_FSMC                      TRUE
+#define STM32_FSMC_IS_FMC                   FALSE
+#define STM32_FSMC_HANDLER                  Vector100
+#define STM32_FSMC_NUMBER                   48
 
 /* CRC attributes.*/
 #define STM32_HAS_CRC                       TRUE
@@ -1102,7 +1105,10 @@
 #define STM32_HAS_DMA2D                     FALSE
 
 /* FSMC attributes.*/
-#define STM32_HAS_FSMC                      FALSE
+#define STM32_HAS_FSMC                      TRUE
+#define STM32_FSMC_IS_FMC                   FALSE
+#define STM32_FSMC_HANDLER                  Vector100
+#define STM32_FSMC_NUMBER                   48
 
 /* CRC attributes.*/
 #define STM32_HAS_CRC                       TRUE
@@ -1308,9 +1314,12 @@
 #define STM32_HAS_LPUART1                   FALSE
 
 /* USB attributes.*/
-#define STM32_HAS_USB                       FALSE
+#define STM32_OTG_STEPPING                  1
 #define STM32_HAS_OTG1                      TRUE
+#define STM32_OTG1_ENDPOINTS                3
+
 #define STM32_HAS_OTG2                      FALSE
+#define STM32_HAS_USB                       FALSE
 
 /* IWDG attributes.*/
 #define STM32_HAS_IWDG                      TRUE
