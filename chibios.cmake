@@ -67,6 +67,7 @@ option(CHIBIOS_USE_THUMB "Compile application in THUMB mode." TRUE)
 option(CHIBIOS_USE_LTO "Perform Link Time Optimization." TRUE)
 set(CHIBIOS_USE_FPU "hard"
     CACHE STRING "Enables use of FPU if supported (no, soft, softfp, hard).")
+set_property(CACHE CHIBIOS_USE_FPU PROPERTY STRINGS no soft softfp hard)
 set(CHIBIOS_USE_PROCESS_STACKSIZE "0x400"
     CACHE STRING "Stack size used by the main() thread.")
 set(CHIBIOS_USE_EXCEPTION_STACKSIZE "0x400"
